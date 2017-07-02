@@ -1,0 +1,11 @@
+{
+  "name": "Geothermal",
+  "version": "0.0.1",
+  "title": "Geothermal",
+  "author": "Reika",
+  "contact": "",
+  "homepage": "",
+  "factorio_version" : "0.15",
+  "description": "Adds magma sources and geothermal generators.",
+  "dependencies": ["base >= 0.15.0"]
+}
