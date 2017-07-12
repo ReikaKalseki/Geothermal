@@ -7,7 +7,7 @@ data:extend(
     default_temperature = 350,
     max_temperature = 350,
     heat_capacity = "1KJ",
-    base_color = {r=0.4, g=0.34, b=0.6},
+    base_color = {r=0.6, g=0.34, b=0.4},
     flow_color = {r=0.8, g=0.7, b=0.7},
     icon = "__Geothermal__/graphics/icons/water.png",
     order = "a[fluid]-a[water]",
@@ -143,8 +143,10 @@ data:extend(
     normal = 10000,
     minable =
     {
-      hardness = 1,
-      mining_time = 1,
+		hardness = 1,
+		mining_time = 1,
+		required_fluid = Config.geothermalNeedsWater and "water" or nil,
+		fluid_amount = Config.geothermalNeedsWater and 10 or nil,
       results =
       {
         {

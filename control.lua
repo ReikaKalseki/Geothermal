@@ -58,6 +58,10 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 	if dd < 300 then
 		return
 	end
+	local df = math.min(1, (dd-300)/400)
+	if df < 1 and math.random() > df then
+		return
+	end
 	local seed = createSeed(event.surface, x, y)
 	rand.re_seed(seed)
 	local f0 = 0.005
@@ -76,6 +80,7 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 		if lavatiles then
 			count = 48
 		end
+		count = math.max(1, math.ceil(df*count))
 		for i = 0, count do
 			local dx = x-3+rand(0, 6)
 			local dy = y-3+rand(0, 6)
@@ -106,6 +111,7 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 end)
 
 --[[
+Good AlienBiomes test map:
 
 >>>AAAPABUAAAADAwgAAAAEAAAAY29hbAMDAwoAAABjb3BwZXItb3Jl
 AwMDCQAAAGNydWRlLW9pbAMDAwoAAABlbmVteS1iYXNlAwMDCAAAAGl

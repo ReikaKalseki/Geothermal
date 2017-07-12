@@ -63,6 +63,10 @@ data:extend(
         type = "unlock-recipe",
         recipe = "geothermal-exchange-2-flipped"
       },
+      {
+        type = "unlock-recipe",
+        recipe = "steam-turbine"
+      }
     },
     unit =
     {

@@ -56,6 +56,22 @@ data:extend(
       emissions = 0.1 / 1.5,
       usage_priority = "secondary-input"
     },
+    input_fluid_box = Config.geothermalNeedsWater and
+    {
+      production_type = "input",
+      pipe_picture = assembler2pipepictures(),
+      pipe_covers = pipecoverspictures(),
+      base_area = 1,
+      height = 2,
+      base_level = -1,
+      pipe_connections =
+      {
+        { position = {-2, 0} },
+        { position = {2, 0} },
+        { position = {0, 2} },
+        { position = {0, -2} },
+      }
+    } or nil,
     output_fluid_box =
     {
       base_area = 1,
