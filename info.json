@@ -7,5 +7,5 @@
   "homepage": "",
   "factorio_version" : "0.15",
   "description": "Adds magma sources and geothermal generators.",
-  "dependencies": ["base >= 0.15.0"]
+  "dependencies": ["base >= 0.15.0", "? alien-biomes"]
 }

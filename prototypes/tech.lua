@@ -7,7 +7,8 @@ data:extend(
     {
 		"fluid-handling",
 		"flammables",
-		"electric-engine"
+		"electric-engine",
+		"concrete"
     },
     icon = "__Geothermal__/graphics/technology/geothermal.png",
     effects =

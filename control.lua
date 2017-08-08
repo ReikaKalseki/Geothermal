@@ -1,4 +1,4 @@
-function canPlaceOreAt(surface, x, y)
+function canPlaceAt(surface, x, y)
 	return surface.can_place_entity{name = "geothermal", position = {x, y}} and not isWaterEdge(surface, x, y)
 end
 
@@ -26,7 +26,7 @@ function isInChunk(x, y, chunk)
 end
 
 function createResource(surface, chunk, dx, dy)
-	if --[[isInChunk(dx, dy, chunk) and ]]canPlaceOreAt(surface, dx, dy) then
+	if --[[isInChunk(dx, dy, chunk) and ]]canPlaceAt(surface, dx, dy) then
 		surface.create_entity{name = "geothermal", position = {x = dx, y = dy}, force = game.forces.neutral, amount = 1000}
 		surface.create_entity{name = "geothermal-light", position = {x = dx+0.5, y = dy+0.5}, force = game.forces.neutral}
 	end
