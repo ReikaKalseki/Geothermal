@@ -4,8 +4,9 @@ data:extend(
     type = "item",
     name = "geothermal-well",
     icon = "__Geothermal__/graphics/icons/geothermal-well.png",
+	icon_size = 32,
     flags = {"goes-to-quickbar"},
-    subgroup = "energy",
+    subgroup = "extraction-machine",
     order = "b[steam-power]-b[geothermal-well]",
     place_result = "geothermal-well",
     stack_size = 10,
@@ -40,6 +41,7 @@ data:extend(
     type = "mining-drill",
     name = "geothermal-well",
     icon = "__Geothermal__/graphics/icons/geothermal-well.png",
+	icon_size = 32,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 1, result = "geothermal-well"},
     resource_categories = {"geothermal"},
@@ -59,6 +61,7 @@ data:extend(
     input_fluid_box = Config.geothermalNeedsWater and
     {
       production_type = "input",
+	  filter = "water",
       pipe_picture = assembler2pipepictures(),
       pipe_covers = pipecoverspictures(),
       base_area = 1,
@@ -74,6 +77,8 @@ data:extend(
     } or nil,
     output_fluid_box =
     {
+      production_type = "output",
+	  filter = "geothermal-water",
       base_area = 1,
       base_level = 1,
       pipe_covers = pipecoverspictures(),
@@ -130,7 +135,8 @@ data:extend(
       sound = { filename = "__Geothermal__/sound/geothermal-well.ogg" },
       apparent_volume = 1.5,
     },
-    fast_replaceable_group = "geothermal-well"
+    fast_replaceable_group = "geothermal-well",
+	allowed_effects = nil,
   }
 }
 )
