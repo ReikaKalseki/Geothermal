@@ -48,7 +48,7 @@ data:extend(
 		},
 		results=
 		{
-		  {type="fluid", name="steam", amount=10, temperature = 180} --used to produce 5 @ 240C
+		  {type="fluid", name="steam", amount=math.floor(Config.powerFactor*12), temperature = 180} --used to produce 5 @ 240C
 		},
 		main_product= "",
 		icon = "__Geothermal__/graphics/icons/geothermal-exchange.png",
@@ -69,7 +69,7 @@ data:extend(
 		},
 		results=
 		{
-		  {type="fluid", name="steam", amount=10, temperature = 180} --used to produce 5 @ 240C
+		  {type="fluid", name="steam", amount=math.floor(Config.powerFactor*12), temperature = 180} --used to produce 5 @ 240C
 		},
 		main_product= "",
 		icon = "__Geothermal__/graphics/icons/geothermal-exchange.png",
@@ -91,7 +91,7 @@ data:extend(
 		},
 		results=
 		{
-		  {type="fluid", name="steam", amount=30, temperature = 500} --used to produce 25
+		  {type="fluid", name="steam", amount=math.floor(Config.powerFactor*30), temperature = 500} --used to produce 25
 		},
 		main_product= "",
 		icon = "__Geothermal__/graphics/icons/geothermal-exchange.png",
@@ -112,7 +112,7 @@ data:extend(
 		},
 		results=
 		{
-		  {type="fluid", name="steam", amount=30, temperature = 500} --used to produce 25
+		  {type="fluid", name="steam", amount=math.floor(Config.powerFactor*30), temperature = 500} --used to produce 25
 		},
 		main_product= "",
 		icon = "__Geothermal__/graphics/icons/geothermal-exchange.png",

@@ -309,7 +309,7 @@ data:extend(
 	icon_size = 32,
     flags = {"placeable-neutral","placeable-player", "player-creation"},
     minable = {hardness = 0.5, mining_time = 1, result = "geothermal-heat-exchanger"},
-    max_health = 300,
+    max_health = 500,
     corpse = "big-remnants",
     dying_explosion = "massive-explosion",
     collision_box = {{-1.4, -1.4}, {1.4, 1.4}},

@@ -45,7 +45,7 @@ data:extend(
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 1, result = "geothermal-well"},
     resource_categories = {"geothermal"},
-    max_health = 100,
+    max_health = 800,
     corpse = "big-remnants",
     dying_explosion = "massive-explosion",
     collision_box = {{ -1.4, -1.4}, {1.4, 1.4}},
@@ -90,7 +90,7 @@ data:extend(
       },
     },
     energy_usage = "180kW",
-    mining_speed = 30, --was 30, but that can only support 4 steam engines with 4 wells running and max non-inf mining productivity research 
+    mining_speed = 50, --was 30, but that can only support 4 steam engines with 4 wells running and max non-inf mining productivity research 
     mining_power = 2,
     resource_searching_radius = 0.49,
     vector_to_place_result = {0, 0},
