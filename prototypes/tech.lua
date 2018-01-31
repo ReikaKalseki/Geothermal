@@ -20,7 +20,7 @@ data:extend(
       {
         type = "unlock-recipe",
         recipe = "geothermal-heat-exchanger"
-      },
+      },--[[
       {
         type = "unlock-recipe",
         recipe = "geothermal-exchange"
@@ -28,7 +28,7 @@ data:extend(
       {
         type = "unlock-recipe",
         recipe = "geothermal-exchange-flipped"
-      },
+      },--]]
     },
     unit =
     {
@@ -55,7 +55,7 @@ data:extend(
     },
     icon = "__Geothermal__/graphics/technology/geothermal.png",
     effects =
-    {
+    {--[[
       {
         type = "unlock-recipe",
         recipe = "geothermal-exchange-2"
@@ -63,7 +63,7 @@ data:extend(
       {
         type = "unlock-recipe",
         recipe = "geothermal-exchange-2-flipped"
-      },
+      },--]]
       {
         type = "unlock-recipe",
         recipe = "steam-turbine"

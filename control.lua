@@ -1,3 +1,5 @@
+require "config"
+
 function canPlaceAt(surface, x, y)
 	return surface.can_place_entity{name = "geothermal", position = {x, y}} and not isWaterEdge(surface, x, y)
 end
@@ -25,10 +27,11 @@ function isInChunk(x, y, chunk)
 	return x >= minx and x <= maxx and y >= miny and y <= maxy
 end
 
-function createResource(surface, chunk, dx, dy)
+function createResource(surface, chunk, dx, dy, color)
 	if --[[isInChunk(dx, dy, chunk) and ]]canPlaceAt(surface, dx, dy) then
-		surface.create_entity{name = "geothermal", position = {x = dx, y = dy}, force = game.forces.neutral, amount = 1000}
-		surface.create_entity{name = "geothermal-light", position = {x = dx+0.5, y = dy+0.5}, force = game.forces.neutral}
+		local clr = (color and color ~= "red" and color ~= "orange") and ("-" .. color) or ""
+		surface.create_entity{name = "geothermal" .. clr, position = {x = dx, y = dy}, force = game.forces.neutral, amount = 1000}
+		surface.create_entity{name = "geothermal-light" .. clr, position = {x = dx+0.5, y = dy+0.5}, force = game.forces.neutral}
 	end
 end
 
@@ -65,11 +68,12 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 	local seed = createSeed(event.surface, x, y)
 	rand.re_seed(seed)
 	local f0 = 0.005
-	local lavatiles = game.tile_prototypes["volcanic-medium"]
+	local lavatiles = game.tile_prototypes["volcanic-orange-heat-1"]
 	if lavatiles then
 		f0 = 0.5
 	end
 	local f = f0*math.min(10, 1+(dd/1000))
+	f = f*Config.frequency
 	local f1 = rand(0, 2147483647)/2147483647
 	--game.print("Chunk at " .. x .. ", " .. y .. " with chance " .. f .. " / " .. f1)
 	if f1 < f then
@@ -80,30 +84,34 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 		if lavatiles then
 			count = 48
 		end
-		count = math.max(1, math.ceil(df*count))
+		count = math.max(1, math.ceil(df*count*Config.size))
 		for i = 0, count do
-			local dx = x-3+rand(0, 6)
-			local dy = y-3+rand(0, 6)
+			local r = 3
 			if lavatiles then
-				dx = x-16+rand(0, 32)
-				dy = y-16+rand(0, 32)
+				r = 16
 			end
+			r = math.floor(r*Config.size+0.5)
+			local dx = x-r+rand(0, r*2)
+			local dy = y-r+rand(0, r*2)
 			if lavatiles then
 				local tile = event.surface.get_tile(dx, dy).name
-				if string.find(tile, "volcanic") then
-					local f2 = 0.25
-					if tile == "volcanic-cool" then
-						f2 = 0.03125/2
-					end
-					if tile == "volcanic-medium" then
-						f2 = 0.125/1.5
-					end
+				--game.print(tile)
+				if string.find(tile, "volcanic", 1, true) then
+					local heat = tonumber(string.sub(tile, -1)) -- 1-4, 4 is hotter & brighter
+					--game.print(tile .. " > " .. heat)
+					local f2 = 0.4*((heat/4)^2)--0.25*heat/4
 					f1 = rand(0, 2147483647)/2147483647
 					if f1 < f2 then
-						createResource(event.surface, event.area, dx, dy)
+						local clr = nil
+						if Config.geothermalColor then
+							clr = string.sub(tile, string.len("volcanic")+2, -2-string.len("heat")-2)
+							--game.print(clr)
+						end
+						createResource(event.surface, event.area, dx, dy, clr)
 					end
 				end
 			else
+				--game.print("No lavatiles found?!")
 				createResource(event.surface, event.area, dx, dy)
 			end
 		end
@@ -111,7 +119,7 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 end)
 
 --[[
-Good AlienBiomes test map:
+Good AlienBiomes test map: (0.15)
 
 >>>AAAPABUAAAADAwgAAAAEAAAAY29hbAMDAwoAAABjb3BwZXItb3Jl
 AwMDCQAAAGNydWRlLW9pbAMDAwoAAABlbmVteS1iYXNlAwMDCAAAAGl
@@ -131,5 +139,26 @@ zMzMzM8M/ATMzMzMzM9M/ATMzMzMzM9M/AQAAAAAAACRAAQAAAAAAAD
 RAAQAAAAAAAD5AAQAAAAAAABRAAQAAAAAAAD5AAQAAAAAAACRAAQAAA
 AAAAAhAAQoAAAABZAAAAAFkAAAAAegDAAABAAAAAAAA4D8B0AcAAAEA
 AAAAAEB/QAMAAAAAAAAAAAAAAPA/5tUb0Q==<<<
+
+
+0.16:
+
+>>>eNptUjFoFEEUnXFzuSRnLinSCCGmSHsgKmKh2ZWAFtrYaTm3O7cZ
+MrdzmZ25804wFlEsBBsbrWy10DaCiGAlKARsFBGMaQKxEAQLQeLM7Mz
+s5fAf8++9/+fP/D9vAZhVvzEQBOdrTSRvEIEbjOMgCMZihqj6n4pZE1
+Fho4p1OphbNhlzmagCojfWE8JFA8km5inJzGYTaWKSDjGK4rWScdbLP
+Is5Rm1/UiJz0ecsNxeZSMpxX5GaIR3JO1TnJgzlOPFYoMxv6xJGsfBX
+9FbVhJrhDLf7jSYyx4+3OBtgXVRNcdsON5EymrixU47yXDUvNasVTLV
+jaixtI9kdyjJKDD1qKUdZOsR9+5MFL/qfKYiQfF0ykg/t93NY3seUsl
+7BmcySRg8JzHXbhLPMjUAx8iNkJF7D1LLxdYm4GOg4l4JQp3o9R+qsQ
+yKaiBexYE7EgjkRDfMiGnZIRBNxIhpSimioFdFgK6LBpYiGehFzQrv+
+Y6zkgpmOa2KVcSKdjlVB3HtUhJIs148mZJbmArtETSp5ypLpLqOxCsR
+O8boPONFnfMQrW4bKsQYki+2hAB6/mO/d3lwAeh1sgBMHB3optA2AWc
+rUNhVwVokpabUAWLygF4Tw8SNtT0NY5OciC4AF93ZdhFjwcMeCK38ti
+F448MClvkbwlLFfYQluzj2/tDMQ6i575ERUgiK5qZMQNlbm97+f+fMa
+bi3c2b+6dSuEr/rPVrK7X5ZVsqoK4BHviglehiONg2+hTX0O4Yf32n6
+EsKIr5rSLzir35rJ6ntm6Qk/uK7c4D1xry1H5Ii1jv90kuw58DEfnWI
+rgOX34gnZT2pkLfWfQwutRkThWZlXpSTB8fVIO987d+Hbo6pEellwPp
+6P/jDASWRp6eNNm4t1e4JtQL7hddSzaiAJQ2s9wGny69g/+42si<<<
 
 --]]
