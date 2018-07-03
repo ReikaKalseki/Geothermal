@@ -1,5 +1,8 @@
 require "config"
 
+local PATCH_RATE_FACTOR = 0.25
+local NONVOLCANIC_FACTOR = 1/24
+
 function canPlaceAt(surface, x, y)
 	return surface.can_place_entity{name = "geothermal", position = {x, y}} and not isWaterEdge(surface, x, y)
 end
@@ -94,20 +97,34 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 			local dx = x-r+rand(0, r*2)
 			local dy = y-r+rand(0, r*2)
 			if lavatiles then
-				local tile = event.surface.get_tile(dx, dy).name
-				--game.print(tile)
-				if string.find(tile, "volcanic", 1, true) then
-					local heat = tonumber(string.sub(tile, -1)) -- 1-4, 4 is hotter & brighter
-					--game.print(tile .. " > " .. heat)
-					local f2 = 0.4*((heat/4)^2)--0.25*heat/4
-					f1 = rand(0, 2147483647)/2147483647
-					if f1 < f2 then
-						local clr = nil
-						if Config.geothermalColor then
-							clr = string.sub(tile, string.len("volcanic")+2, -2-string.len("heat")-2)
-							--game.print(clr)
+				local loctile = event.surface.get_tile(dx, dy)
+				if loctile then
+					local tile = loctile.name
+					--game.print(tile)
+					if string.find(tile, "volcanic", 1, true) then
+						local heat = tonumber(string.sub(tile, -1)) -- 1-4, 4 is hotter & brighter
+						--game.print(tile .. " > " .. heat)
+						local f2 = 0.4*((heat/4)^2)--0.25*heat/4
+						f1 = rand(0, 2147483647)/2147483647
+						
+						f2 = f2*PATCH_RATE_FACTOR --because was insane otherwise
+						
+						if f1 < f2 then
+							local clr = nil
+							if Config.geothermalColor then
+								clr = string.sub(tile, string.len("volcanic")+2, -2-string.len("heat")-2)
+								--game.print(clr)
+							end
+							createResource(event.surface, event.area, dx, dy, clr)
 						end
-						createResource(event.surface, event.area, dx, dy, clr)
+					else
+						if Config.geothermalEverywhere then
+							local f2 = 0.025*PATCH_RATE_FACTOR*NONVOLCANIC_FACTOR
+							f1 = rand(0, 2147483647)/2147483647						
+							if f1 < f2 then
+								createResource(event.surface, event.area, dx, dy, nil)
+							end
+						end
 					end
 				end
 			else

@@ -80,7 +80,7 @@ data:extend(
 		name = "geothermal-exchange" .. color,
 		category = "geothermal",
 		enabled = false,
-		energy = 1,
+		energy_required = 1,
 		ingredients =
 		{
 		  {type="fluid", name="water", amount=1},
@@ -99,7 +99,7 @@ data:extend(
 		name = "geothermal-exchange-flipped" .. color,
 		category = "geothermal",
 		enabled = false,
-		energy = 1,
+		energy_required = 1,
 		ingredients =
 		{
 		  {type="fluid", name="geothermal-water" .. color, amount=1},
@@ -119,7 +119,7 @@ data:extend(
 		name = "geothermal-exchange-2" .. color,
 		category = "geothermal",
 		enabled = false,
-		energy = 1,
+		energy_required = 1,
 		ingredients =
 		{
 		  {type="fluid", name="water", amount=5},
@@ -138,7 +138,7 @@ data:extend(
 		name = "geothermal-exchange-2-flipped" .. color,
 		category = "geothermal",
 		enabled = false,
-		energy = 1,
+		energy_required = 1,
 		ingredients =
 		{
 		  {type="fluid", name="geothermal-water" .. color, amount=2},

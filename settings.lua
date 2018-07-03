@@ -42,4 +42,11 @@ data:extend({
             default_value = true,
             order = "r",
 		},
+        {
+            type = "bool-setting",
+            name = "allow-nonvolcanic-geothermal",
+            setting_type = "startup",
+            default_value = false,
+            order = "r",
+		},
 })

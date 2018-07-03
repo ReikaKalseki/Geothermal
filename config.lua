@@ -9,3 +9,5 @@ Config.frequency = settings.startup["geothermal-frequency"].value
 Config.size = settings.startup["geothermal-size"].value
 
 Config.geothermalColor = settings.startup["geothermal-color"].value
+
+Config.geothermalEverywhere = settings.startup["allow-nonvolcanic-geothermal"].value
