@@ -56,7 +56,8 @@ data:extend(
       type = "electric",
       -- will produce this much * energy pollution units per tick
       emissions = 0.1 / 1.5,
-      usage_priority = "secondary-input"
+      usage_priority = "secondary-input",
+	  drain = 40*Config.wellgen .. "kW",
     },
     input_fluid_box = Config.geothermalNeedsWater and
     {
@@ -89,8 +90,8 @@ data:extend(
         }
       },
     },
-    energy_usage = "180kW",
-    mining_speed = 50, --was 30, but that can only support 4 steam engines with 4 wells running and max non-inf mining productivity research 
+	energy_usage = 240*Config.wellgen .. "kW",
+    mining_speed = 80*Config.wellgen, --was 30, then 50, but 30 can only support 4 steam engines with 4 wells running and max non-inf mining productivity research; 50 cannot even run 2 engines on 1 well without research
     mining_power = 2,
     resource_searching_radius = 0.49,
     vector_to_place_result = {0, 0},

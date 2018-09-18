@@ -1,7 +1,5 @@
 require "config"
-
-local PATCH_RATE_FACTOR = 0.25
-local NONVOLCANIC_FACTOR = 1/24
+require "constants"
 
 function canPlaceAt(surface, x, y)
 	return surface.can_place_entity{name = "geothermal", position = {x, y}} and not isWaterEdge(surface, x, y)
@@ -53,13 +51,34 @@ function cantorCombine(a, b)
 end
 
 function createSeed(surface, x, y) --Used by Minecraft MapGen
-	return bit32.band(cantorCombine(surface.map_gen_settings.seed, cantorCombine(x, y)), 2147483647)
+	local seed = surface.map_gen_settings.seed
+	if Config.seedMixin ~= 0 then
+		seed = bit32.band(cantorCombine(seed, Config.seedMixin), 2147483647)
+	end
+	return bit32.band(cantorCombine(seed, cantorCombine(x, y)), 2147483647)
 end
 
-script.on_event(defines.events.on_chunk_generated, function(event)
+local function isLavaTile(surface, dx, dy)
+	local loctile = surface.get_tile(dx, dy)
+	return (loctile and string.find(loctile.name, "volcanic", 1, true)) and loctile or nil
+end
+
+local function isLavaChunk(lavatiles, surface, area)
+	if not lavatiles then return false end
+	for dx = area.left_top.x,area.right_bottom.x,16 do
+		for dy = area.left_top.y,area.right_bottom.y,16 do
+			if isLavaTile(surface, dx, dy) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+local function controlChunk(surface, area)
 	local rand = game.create_random_generator()
-	local x = (event.area.left_top.x+event.area.right_bottom.x)/2
-	local y = (event.area.left_top.y+event.area.right_bottom.y)/2
+	local x = (area.left_top.x+area.right_bottom.x)/2
+	local y = (area.left_top.y+area.right_bottom.y)/2
 	local dd = math.sqrt(x*x+y*y)
 	if dd < 300 then
 		return
@@ -68,7 +87,7 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 	if df < 1 and math.random() > df then
 		return
 	end
-	local seed = createSeed(event.surface, x, y)
+	local seed = createSeed(surface, x, y)
 	rand.re_seed(seed)
 	local f0 = 0.005
 	local lavatiles = game.tile_prototypes["volcanic-orange-heat-1"]
@@ -76,63 +95,93 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 		f0 = 0.5
 	end
 	local f = f0*math.min(10, 1+(dd/1000))
-	f = f*Config.frequency
+	f = f*Config.frequency*PATCH_RATE_FACTOR
+	local lava = isLavaChunk(lavatiles, surface, area)
+	if lavatiles and (not lava) then
+		f = f*NONVOLCANIC_FACTOR
+	end
 	local f1 = rand(0, 2147483647)/2147483647
+	local shouldGen = Config.geothermalEverywhere or (not lavatiles) or lava
 	--game.print("Chunk at " .. x .. ", " .. y .. " with chance " .. f .. " / " .. f1)
-	if f1 < f then
+	if shouldGen and f1 < f then
 		--game.print("Genning Chunk at " .. x .. ", " .. y)
 		x = x-16+rand(0, 32)
 		y = y-16+rand(0, 32)
 		local count = rand(2, 6)
-		if lavatiles then
-			count = 48
+		if lava then
+			count = 32
 		end
 		count = math.max(1, math.ceil(df*count*Config.size))
-		for i = 0, count do
-			local r = 3
-			if lavatiles then
+		--game.print("Chunk at " .. x .. ", " .. y .. " attempting " .. count)
+		for i = 1, count do
+			local r = 6
+			if lava then
 				r = 16
 			end
 			r = math.floor(r*Config.size+0.5)
 			local dx = x-r+rand(0, r*2)
 			local dy = y-r+rand(0, r*2)
-			if lavatiles then
-				local loctile = event.surface.get_tile(dx, dy)
-				if loctile then
-					local tile = loctile.name
-					--game.print(tile)
-					if string.find(tile, "volcanic", 1, true) then
-						local heat = tonumber(string.sub(tile, -1)) -- 1-4, 4 is hotter & brighter
-						--game.print(tile .. " > " .. heat)
-						local f2 = 0.4*((heat/4)^2)--0.25*heat/4
-						f1 = rand(0, 2147483647)/2147483647
-						
-						f2 = f2*PATCH_RATE_FACTOR --because was insane otherwise
-						
-						if f1 < f2 then
-							local clr = nil
-							if Config.geothermalColor then
-								clr = string.sub(tile, string.len("volcanic")+2, -2-string.len("heat")-2)
-								--game.print(clr)
-							end
-							createResource(event.surface, event.area, dx, dy, clr)
-						end
-					else
-						if Config.geothermalEverywhere then
-							local f2 = 0.025*PATCH_RATE_FACTOR*NONVOLCANIC_FACTOR
-							f1 = rand(0, 2147483647)/2147483647						
-							if f1 < f2 then
-								createResource(event.surface, event.area, dx, dy, nil)
-							end
-						end
+			local loctile = isLavaTile(surface, dx, dy)
+			if loctile then
+				local tile = loctile.name
+				local heat = tonumber(string.sub(tile, -1)) -- 1-4, 4 is hotter & brighter
+				--game.print(tile .. " > " .. heat)
+				local f2 = 0.4*((heat/4)^2)--0.25*heat/4
+				f1 = rand(0, 2147483647)/2147483647
+				
+				if f1 < f2 then
+					local clr = nil
+					if Config.geothermalColor then
+						clr = string.sub(tile, string.len("volcanic")+2, -2-string.len("heat")-2)
+						--game.print(clr)
 					end
+					createResource(surface, area, dx, dy, clr)
 				end
-			else
-				--game.print("No lavatiles found?!")
-				createResource(event.surface, event.area, dx, dy)
+			elseif not lava then
+				createResource(surface, area, dx, dy, nil)
 			end
 		end
 	end
+end
+
+script.on_event(defines.events.on_chunk_generated, function(event)
+	controlChunk(event.surface, event.area)
+end)
+
+script.on_event(defines.events.on_tick, function(event)	
+	if not ranTick and Config.retrogenDistance >= 0 then
+		local surface = game.surfaces["nauvis"]
+		for chunk in surface.get_chunks() do
+			local x = chunk.x
+			local y = chunk.y
+			if surface.is_chunk_generated({x, y}) then
+				local area = {
+					left_top = {
+						x = x*CHUNK_SIZE,
+						y = y*CHUNK_SIZE
+					},
+					right_bottom = {
+						x = (x+1)*CHUNK_SIZE,
+						y = (y+1)*CHUNK_SIZE
+					}
+				}
+				local dx = x*CHUNK_SIZE+CHUNK_SIZE/2
+				local dy = y*CHUNK_SIZE+CHUNK_SIZE/2
+				local dist = math.sqrt(dx*dx+dy*dy)
+				if dist >= Config.retrogenDistance then
+					controlChunk(surface, area)
+				end
+			end
+		end
+		ranTick = true
+		for name,force in pairs(game.forces) do
+			force.rechart()
+		end
+		--game.print("Ran load code")
+	end
+	
+	--local pos=game.players[1].position
+	--for k,v in pairs(game.surfaces.nauvis.find_entities_filtered{area={{pos.x-1,pos.y-1},{pos.x+1,pos.y+1}}, type="resource"}) do v.destroy() end
 end)
 
 --[[

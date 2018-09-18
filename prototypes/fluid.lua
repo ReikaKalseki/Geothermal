@@ -2,6 +2,9 @@
 
 require "config"
 
+local highConsumeMultiply = 4
+local exchangersPerWell = 1.2--1.6--0.8--2
+
 local colors = {
 	[""] = {base = {r=0.6, g=0.34, b=0.4}, light = {r=1, g=0.7, b=0.2}}
 }
@@ -61,16 +64,16 @@ if color ~= "" then
 end
 
 local prod1 = {
-	{type="fluid", name="steam", amount=math.floor(Config.powerFactor*12), temperature = 180}
+	{type="fluid", name="steam", amount=math.floor(Config.powerFactor*12), temperature = 240} --240 so can run Bob Mk2 steam engine
 }
 
 local prod2 = {
-	{type="fluid", name="steam", amount=math.floor(Config.powerFactor*30), temperature = 500}
+	{type="fluid", name="steam", amount=math.floor(Config.powerFactor*30*highConsumeMultiply), temperature = 500}
 }
 
 if params.byproduct then
 	table.insert(prod1, {type = "item", name = params.byproduct, probability = 0.0005, amount = 1})
-	table.insert(prod2, {type = "item", name = params.byproduct, probability = 0.0003, amount = 1})
+	table.insert(prod2, {type = "item", name = params.byproduct, probability = 0.0003*highConsumeMultiply, amount = 1})
 end
 
 data:extend(
@@ -80,7 +83,7 @@ data:extend(
 		name = "geothermal-exchange" .. color,
 		category = "geothermal",
 		enabled = false,
-		energy_required = 1,
+		energy_required = exchangersPerWell/2,
 		ingredients =
 		{
 		  {type="fluid", name="water", amount=1},
@@ -99,7 +102,7 @@ data:extend(
 		name = "geothermal-exchange-flipped" .. color,
 		category = "geothermal",
 		enabled = false,
-		energy_required = 1,
+		energy_required = exchangersPerWell/2,
 		ingredients =
 		{
 		  {type="fluid", name="geothermal-water" .. color, amount=1},
@@ -119,11 +122,11 @@ data:extend(
 		name = "geothermal-exchange-2" .. color,
 		category = "geothermal",
 		enabled = false,
-		energy_required = 1,
+		energy_required = exchangersPerWell/2*highConsumeMultiply,
 		ingredients =
 		{
-		  {type="fluid", name="water", amount=5},
-		  {type="fluid", name="geothermal-water" .. color, amount=2}
+		  {type="fluid", name="water", amount=5*highConsumeMultiply},
+		  {type="fluid", name="geothermal-water" .. color, amount=2*highConsumeMultiply}
 		},
 		results = prod2,
 		main_product= "",
@@ -132,17 +135,17 @@ data:extend(
 		subgroup = "fluid-recipes",
 		order = "b[fluid-chemistry]-i[geothermal]",
 		localised_name = {"recipe-name.geothermal-exchange-2"},
-	  },
+		},
 	  	{
 		type = "recipe",
 		name = "geothermal-exchange-2-flipped" .. color,
 		category = "geothermal",
 		enabled = false,
-		energy_required = 1,
+		energy_required = exchangersPerWell/2*highConsumeMultiply,
 		ingredients =
 		{
-		  {type="fluid", name="geothermal-water" .. color, amount=2},
-		  {type="fluid", name="water", amount=5},
+		  {type="fluid", name="geothermal-water" .. color, amount=2*highConsumeMultiply},
+		  {type="fluid", name="water", amount=5*highConsumeMultiply},
 		},
 		results = prod2,
 		main_product= "",
@@ -171,6 +174,7 @@ data:extend(
 	localised_name = {"entity-name.geothermal", display},
     order="a-b-a",
     infinite = true,
+    highlight = true,
     minimum = 10000,
     normal = 10000,
     minable =

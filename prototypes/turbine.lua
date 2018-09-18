@@ -480,9 +480,10 @@ data:extend(
     {
       type = "electric",
       usage_priority = "secondary-input",
-      emissions = 0 / 3.5
+      emissions = 0 / 3.5,
+	  drain = "30kW",
     },
-    energy_usage = "40kW",
+    energy_usage = 60*Config.powerFactor*Config.powerFactor .. "kW",
     ingredient_count = 2,
     crafting_categories = {"geothermal"},
     fluid_boxes =

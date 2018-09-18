@@ -1,0 +1,9 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.0.148
+Date: Sep 18 2018
+	- Added option for well fluid production multiplier
+	- Adjusted power costs of geothermal machinery
+	- Increased L1 geothermal steam temperature slightly, to enable it to run Bob Mk2 steam engines
+	- Adjusted well/exchanger ratios
+	- Redesigned worldgen code to better allow for small clusters instead of lone wells
+---------------------------------------------------------------------------------------------------

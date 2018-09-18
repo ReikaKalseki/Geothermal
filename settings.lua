@@ -10,6 +10,15 @@ data:extend({
         },
         {
             type = "double-setting",
+            name = "geothermal-fluid-production",
+            setting_type = "startup",
+            default_value = 1,
+            order = "r",
+			minimum_value = 0.25,
+			maximum_value = 4,
+		},
+        {
+            type = "double-setting",
             name = "geothermal-power-factor",
             setting_type = "startup",
             default_value = 1,
