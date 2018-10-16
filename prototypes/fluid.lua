@@ -219,11 +219,12 @@ data:extend(
     {
       sheet =
       {
-        filename = "__Geothermal__/graphics/entity/geothermal/geothermal-patch" .. color .. ".png",
+        filename = "__Geothermal__/graphics/entity/geothermal/patch-sheet" .. color .. ".png",
         priority = "extra-high",
-        width = 75,
-        height = 61,
-        frame_count = 4,
+        width = 256,
+        height = 192,
+		scale = 0.5,
+        frame_count = 6,
         variation_count = 1
       }
     },
