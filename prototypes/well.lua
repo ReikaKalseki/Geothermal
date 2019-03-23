@@ -5,7 +5,7 @@ data:extend(
     name = "geothermal-well",
     icon = "__Geothermal__/graphics/icons/geothermal-well.png",
 	icon_size = 32,
-    flags = {"goes-to-quickbar"},
+    flags = {},
     subgroup = "extraction-machine",
     order = "b[steam-power]-b[geothermal-well]",
     place_result = "geothermal-well",
@@ -55,7 +55,7 @@ data:extend(
     {
       type = "electric",
       -- will produce this much * energy pollution units per tick
-      emissions = 0.1 / 1.5,
+      emissions_per_second_per_watt = 0.1 / 1.5,
       usage_priority = "secondary-input",
 	  drain = 40*Config.wellgen .. "kW",
     },

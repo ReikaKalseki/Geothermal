@@ -5,7 +5,7 @@ data:extend(
     name = "geothermal-heat-exchanger",
     icon = "__Geothermal__/graphics/icons/geothermal-turbine.png",
 	icon_size = 32,
-    flags = {"goes-to-quickbar"},
+    flags = {},
     subgroup = "energy",
     order = "b[steam-power]-b[geothermal-heat-exchanger]",
     place_result = "geothermal-heat-exchanger",
@@ -480,7 +480,7 @@ data:extend(
     {
       type = "electric",
       usage_priority = "secondary-input",
-      emissions = 0 / 3.5,
+      emissions_per_second_per_watt = 0 / 3.5,
 	  drain = "30kW",
     },
     energy_usage = 60*Config.powerFactor*Config.powerFactor .. "kW",
