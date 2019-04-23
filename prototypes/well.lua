@@ -80,7 +80,6 @@ data:extend(
     output_fluid_box =
     {
       production_type = "output",
-	  filter = "geothermal-water",
       base_area = 1,
       base_level = 1,
       pipe_covers = pipecoverspictures(),
