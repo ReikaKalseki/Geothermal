@@ -54,8 +54,9 @@ data:extend(
     energy_source =
     {
       type = "electric",
-      -- will produce this much * energy pollution units per tick
-      emissions_per_second_per_watt = 0.1 / 1.5,
+      -- Geothermal energy does not produce pollution
+      -- Let's assume it's not perfectly clean
+      emissions_per_minute = Config.wellgen,
       usage_priority = "secondary-input",
 	  drain = 40*Config.wellgen .. "kW",
     },
