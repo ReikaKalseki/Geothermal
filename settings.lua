@@ -52,10 +52,11 @@ data:extend({
             order = "r",
 		},
         {
-            type = "bool-setting",
-            name = "allow-nonvolcanic-geothermal",
+            type = "string-setting",
+            name = "geothermal-spawn-rules",
             setting_type = "startup",
-            default_value = false,
+            default_value = "volcanic",
+			allowed_values = {"volcanic", "volcanic-and-snow", "volcanic-snow-and-red-desert", "everywhere"},
             order = "r",
 		},
 })

@@ -1,6 +1,8 @@
 require "config"
 require "constants"
 
+require "__DragonIndustries__.arrays"
+
 function canPlaceAt(surface, x, y)
 	return surface.can_place_entity{name = "geothermal", position = {x, y}} and not isWaterEdge(surface, x, y)
 end
@@ -75,6 +77,65 @@ local function isLavaChunk(lavatiles, surface, area)
 	return false
 end
 
+local function calculateSpawnSet(set)
+	local lavatiles = game.tile_prototypes["volcanic-orange-heat-1"]
+	local snowtiles = game.tile_prototypes["frozen-snow-0"]
+	local set = {}
+	for name,tile in pairs(data.raw.tile) do
+		if string.find(name, "volcanic", 1, true) then
+			local heat = tonumber(string.sub(tile, -1)) -- 1-4, 4 is hotter & brighter
+			--game.print(name .. " > " .. heat)
+			local f2 = 0.4*((heat/4)^2)--0.25*heat/4
+			set[name] = f2
+		end
+	end
+	if Config.geothermalSpawnRules == "volcanic-and-snow" or Config.geothermalSpawnRules == "volcanic-snow-and-red-desert" then
+		for name,tile in pairs(data.raw.tile) do
+			if string.find(name, "frozen-snow", 1, true) then
+				set[name] = 0.1
+			end
+		end
+	end
+	if Config.geothermalSpawnRules == "volcanic-snow-and-red-desert" then
+		for name,tile in pairs(data.raw.tile) do
+			if string.find(name, "red-desert", 1, true) then
+				set[name] = 0.02
+			end
+		end
+	end
+	if Config.geothermalSpawnRules == "everywhere" or getTableSize(set) == 0 then
+		for name,tile in pairs(data.raw.tile) do
+			set[name] = 0.0005
+		end
+	end
+end
+
+local function getSpawnSet()
+	local geo = global.geo
+	if not geo then
+		geo = {}
+		global.geo = geo
+		calculateSpawnSet(geo)
+	end
+	return geo
+end
+
+local function getSpawnChance(surface, position)
+	local set = getSpawnSet()
+	local ret = 0
+	c = 0
+	for i = -2,2 do
+		for k = -2,2 do
+			local tile = surface.get_tile(position.x+i, position.y+k)
+			if set[tile.name] then
+				ret = ret+set[tile.name]
+				c = c+1
+			end
+		end
+	end
+	return c > 0 and ret/c or 0
+end
+
 local function controlChunk(surface, area)
 	local rand = game.create_random_generator()
 	local x = (area.left_top.x+area.right_bottom.x)/2
@@ -91,6 +152,7 @@ local function controlChunk(surface, area)
 	rand.re_seed(seed)
 	local f0 = 0.005
 	local lavatiles = game.tile_prototypes["volcanic-orange-heat-1"]
+	local snowtiles = game.tile_prototypes["frozen-snow-0"]
 	if lavatiles then
 		f0 = 0.5
 	end

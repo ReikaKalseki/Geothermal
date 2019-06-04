@@ -179,7 +179,6 @@ data:extend(
     normal = 10000,
     minable =
     {
-		hardness = 1,
 		mining_time = 1,
 		required_fluid = Config.geothermalNeedsWater and "water" or nil,
 		fluid_amount = Config.geothermalNeedsWater and 10 or nil,
