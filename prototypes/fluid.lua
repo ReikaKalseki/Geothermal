@@ -2,6 +2,8 @@
 
 require "config"
 
+require "__DragonIndustries__/utility-entities"
+
 local highConsumeMultiply = 4
 local exchangersPerWell = 1.2--1.6--0.8--2
 
@@ -194,25 +196,7 @@ data:extend(
       }
     },
     collision_box = {{ -1.4, -1.4}, {1.4, 1.4}},
-    selection_box = {{ -0.75, -0.75}, {0.75, 0.75}},--[[
-    autoplace =
-    {
-      control = "geothermal",
-      sharpness = 0.99,
-      max_probability = 0.035,
-      richness_base = 6000,
-      richness_multiplier = 30000,
-      richness_multiplier_distance_bonus = 10,
-      coverage = 0.02, -- Cover on average 2% of surface area.
-      peaks =
-      {
-        {
-          noise_layer = "geothermal",
-          noise_octaves_difference = -1,
-          noise_persistence = 0.44,
-        }
-      }
-    },--]]
+    selection_box = {{ -0.75, -0.75}, {0.75, 0.75}},
     stage_counts = {0},
     stages =
     {
@@ -230,55 +214,7 @@ data:extend(
     map_color = {r=0.8, g=0.6, b=0.2},
     map_grid = false
   },
-{
-    type = "rail-chain-signal",
-    name = "geothermal-light" .. color,
-    --icon = "__base__/graphics/icons/rail-signal.png",
-	icon_size = 32,
-    flags = {"placeable-off-grid", "not-on-map"},
-    --fast_replaceable_group = "rail-signal",
-    --minable = {mining_time = 0.5, result = "rail-signal"},
-    max_health = 100,
-	destructible = false,
-    corpse = "small-remnants",
-    --collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
-    --selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
-	selectable_in_game = false,
-	collision_mask = {},
-    animation =
-    {
-      filename = "__core__/graphics/empty.png",
-      priority = "high",
-      width = 1,
-      height = 1,
-      frame_count = 1,
-      direction_count = 1,
-    },
-    selection_box_offsets =
-    {
-      {0, 0},
-      {0, 0},
-      {0, 0},
-      {0, 0},
-      {0, 0},
-      {0, 0},
-      {0, 0},
-      {0, 0}
-    },
-    rail_piece =
-    {
-      filename = "__core__/graphics/empty.png",
-      line_length = 1,
-      width = 1,
-      height = 1,
-      frame_count = 1,
-      axially_symmetrical = false,
-    },
-    green_light = {intensity = 0.75, size = 8, color=params.light},
-    orange_light = {intensity = 0.75, size = 8, color=params.light},
-    red_light = {intensity = 0.75, size = 8, color=params.light},
-    blue_light = {intensity = 0.75, size = 8, color=params.light},
-   }
+  createBasicLight("geothermal-light" .. color, {brightness = 0.75, size = 8, color = params.light})
 })
 
 end

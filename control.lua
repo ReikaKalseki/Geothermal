@@ -2,36 +2,133 @@ require "config"
 require "constants"
 
 require "__DragonIndustries__.arrays"
+require "__DragonIndustries__.world"
+
+local SET_VERSION = 1
+
+local function getPatchSize(tile)
+	local low = 2
+	local high = 6
+	if string.find(tile, "volcanic", 1, true) then
+		high = 2--32
+		low = high
+	end
+	if string.find(tile, "snow", 1, true) then
+		low = 5
+		high = 10
+	end
+	if string.find(tile, "desert", 1, true) then
+		low = 4
+		high = 6
+	end
+	return low, high
+end
+
+local function calculateSpawnSet(set)
+	local lavatiles = game.tile_prototypes["volcanic-orange-heat-1"]
+	local snowtiles = game.tile_prototypes["frozen-snow-0"]
+	local set = {}
+	for name,tile in pairs(game.tile_prototypes) do
+		if string.find(name, "volcanic", 1, true) then
+			local heat = tonumber(string.sub(name, -1)) -- 1-4, 4 is hotter & brighter
+			--game.print(name .. " > " .. heat)
+			local f2 = 36*0.36*((heat/4)^2)--0.4*((heat/4)^2)--0.25*heat/4
+			set[name] = {rate = f2, radius = 4}--16}
+		end
+		if Config.geothermalSpawnRules == "volcanic-and-snow" or Config.geothermalSpawnRules == "volcanic-snow-and-red-desert" then
+			if string.find(name, "frozen-snow", 1, true) then
+				set[name] = {rate = 0.03, radius = 9}
+			end
+		end
+		if Config.geothermalSpawnRules == "volcanic-snow-and-red-desert" then
+			if string.find(name, "red-desert", 1, true) then
+				set[name] = {rate = 0.006, radius = 8}
+			end
+		end
+	end
+	if Config.geothermalSpawnRules == "everywhere" or getTableSize(set) == 0 then
+		for name,tile in pairs(game.tile_prototypes) do
+			set[name] = {rate = 0.00025, radius = 6}
+		end
+	end
+	for k,v in pairs(set) do
+		if type(v) == "number" then
+			local low,high = getPatchSize(k)
+			set[k] = {rate = v, count_min = low, count_max = high}
+			--game.print(k)
+		elseif type(v) == "table" and not v[count_min] then
+			local low,high = getPatchSize(k)
+			v.count_min = low
+			v.count_max = high
+		end
+	end
+	--game.print(serpent.block(set))
+	set.version = SET_VERSION
+	return set
+end
+
+local function getSpawnSet()
+	local geo = global.geo
+	if not geo then
+		geo = {}
+		global.geo = geo
+	end
+	if geo.set and (geo.set.version == nil or geo.set.version < SET_VERSION) then
+		geo.set = nil
+	end
+	if not geo.set then
+		geo.set = calculateSpawnSet(geo)
+	end
+	return geo.set
+end
+
+local function isNonZeroTile(surface, x, y)
+	local set = getSpawnSet()
+	for i = -1,1 do
+		for k = -1,1 do
+			local tile = surface.get_tile(x+i, y+k)
+			--game.print(tile.name .. " > " .. serpent.block(set[tile.name]))
+			if set[tile.name] and set[tile.name].rate > 0 then
+				return true
+			end
+		end
+	end
+	return false
+end
 
 function canPlaceAt(surface, x, y)
-	return surface.can_place_entity{name = "geothermal", position = {x, y}} and not isWaterEdge(surface, x, y)
+	return surface.can_place_entity{name = "geothermal", position = {x, y}} and not isWaterEdge(surface, x, y) and isNonZeroTile(surface, x, y)
 end
 
-function isWaterEdge(surface, x, y)
-	if surface.get_tile{x-1, y}.valid and surface.get_tile{x-1, y}.prototype.layer == "water-tile" then
-		return true
+local function getTileColor(surface, x, y)
+	if not Config.geothermalColor then return nil end
+	local tile = surface.get_tile(x, y)
+	local clr = nil
+	if string.find(tile.name, "volcanic", 1, true) then
+		clr = string.sub(tile.name, string.len("volcanic")+2, -2-string.len("heat")-2)
 	end
-	if surface.get_tile{x+1, y}.valid and surface.get_tile{x+1, y}.prototype.layer == "water-tile" then
-		return true
-	end
-	if surface.get_tile{x, y-1}.valid and surface.get_tile{x, y-1}.prototype.layer == "water-tile" then
-		return true
-	end
-	if surface.get_tile{x, y+1}.valid and surface.get_tile{x, y+1}.prototype.layer == "water-tile" then
-		return true
-	end
+	--game.print(tile.name .. " > " .. (clr and clr or "nil"))
+	return clr
 end
 
-function isInChunk(x, y, chunk)
-	local minx = math.min(chunk.left_top.x, chunk.right_bottom.x)
-	local miny = math.min(chunk.left_top.y, chunk.right_bottom.y)
-	local maxx = math.max(chunk.left_top.x, chunk.right_bottom.x)
-	local maxy = math.max(chunk.left_top.y, chunk.right_bottom.y)
-	return x >= minx and x <= maxx and y >= miny and y <= maxy
+local function getPrevailingColor(surface, x, y)
+	if not Config.geothermalColor then return nil end
+	local clrs = {}
+	--game.print(clr)
+	for dx = x-4,x+4 do
+		for dy = y-4,y+4 do
+			local clr = getTileColor(surface, dx, dy)
+			if clr then
+				clrs[clr] = clrs[clr] and clrs[clr]+1 or 1
+			end
+		end
+	end
+	return getHighestTableKey(clrs)
 end
 
-function createResource(surface, chunk, dx, dy, color)
-	if --[[isInChunk(dx, dy, chunk) and ]]canPlaceAt(surface, dx, dy) then
+function createResource(surface, dx, dy)
+	if canPlaceAt(surface, dx, dy) then
+		local color = getPrevailingColor(surface, dx, dy)
 		local clr = (color and color ~= "red" and color ~= "orange") and ("-" .. color) or ""
 		surface.create_entity{name = "geothermal" .. clr, position = {x = dx, y = dy}, force = game.forces.neutral, amount = 1000}
 		surface.create_entity{name = "geothermal-light" .. clr, position = {x = dx+0.5, y = dy+0.5}, force = game.forces.neutral}
@@ -60,80 +157,43 @@ function createSeed(surface, x, y) --Used by Minecraft MapGen
 	return bit32.band(cantorCombine(seed, cantorCombine(x, y)), 2147483647)
 end
 
-local function isLavaTile(surface, dx, dy)
-	local loctile = surface.get_tile(dx, dy)
-	return (loctile and string.find(loctile.name, "volcanic", 1, true)) and loctile or nil
-end
-
-local function isLavaChunk(lavatiles, surface, area)
-	if not lavatiles then return false end
-	for dx = area.left_top.x,area.right_bottom.x,16 do
-		for dy = area.left_top.y,area.right_bottom.y,16 do
-			if isLavaTile(surface, dx, dy) then
-				return true
-			end
-		end
-	end
-	return false
-end
-
-local function calculateSpawnSet(set)
-	local lavatiles = game.tile_prototypes["volcanic-orange-heat-1"]
-	local snowtiles = game.tile_prototypes["frozen-snow-0"]
-	local set = {}
-	for name,tile in pairs(data.raw.tile) do
-		if string.find(name, "volcanic", 1, true) then
-			local heat = tonumber(string.sub(tile, -1)) -- 1-4, 4 is hotter & brighter
-			--game.print(name .. " > " .. heat)
-			local f2 = 0.4*((heat/4)^2)--0.25*heat/4
-			set[name] = f2
-		end
-	end
-	if Config.geothermalSpawnRules == "volcanic-and-snow" or Config.geothermalSpawnRules == "volcanic-snow-and-red-desert" then
-		for name,tile in pairs(data.raw.tile) do
-			if string.find(name, "frozen-snow", 1, true) then
-				set[name] = 0.1
-			end
-		end
-	end
-	if Config.geothermalSpawnRules == "volcanic-snow-and-red-desert" then
-		for name,tile in pairs(data.raw.tile) do
-			if string.find(name, "red-desert", 1, true) then
-				set[name] = 0.02
-			end
-		end
-	end
-	if Config.geothermalSpawnRules == "everywhere" or getTableSize(set) == 0 then
-		for name,tile in pairs(data.raw.tile) do
-			set[name] = 0.0005
-		end
-	end
-end
-
-local function getSpawnSet()
-	local geo = global.geo
-	if not geo then
-		geo = {}
-		global.geo = geo
-		calculateSpawnSet(geo)
-	end
-	return geo
-end
-
-local function getSpawnChance(surface, position)
+local function getSpawnData(surface, x, y)
 	local set = getSpawnSet()
 	local ret = 0
+	local sizes = {0, 0}
+	local radius = 0
 	c = 0
-	for i = -2,2 do
-		for k = -2,2 do
-			local tile = surface.get_tile(position.x+i, position.y+k)
+	for i = -1,1 do
+		for k = -1,1 do
+			local tile = surface.get_tile(x+i, y+k)
+			--game.print(tile.name .. " > " .. serpent.block(set[tile.name]))
 			if set[tile.name] then
-				ret = ret+set[tile.name]
+				ret = ret+set[tile.name].rate
+				sizes[1] = math.max(sizes[1], set[tile.name].count_min)
+				sizes[2] = math.max(sizes[2], set[tile.name].count_max)
+				radius = math.max(radius, set[tile.name].radius)
 				c = c+1
+				--if ret > 0 then game.print(tile.name) end
+				--surface.set_tiles({{name = "water", position = {x+i, y+k}}})
 			end
 		end
 	end
-	return c > 0 and ret/c or 0
+	return (c > 0 and ret/c or 0), sizes, radius
+end
+
+local function trySpawnPatchAt(rand, surface, x, y, df, counts, radius)
+	--game.print("Genning Chunk at " .. x .. ", " .. y)
+	x = x-4+rand(0, 8)
+	y = y-4+rand(0, 8)
+	local count = rand(counts[1], counts[2])
+	count = math.max(1, math.ceil(df*count*Config.size))
+	--game.print("Chunk at " .. x .. ", " .. y .. " attempting " .. count)
+	for i = 1, count do
+		local r = math.floor(radius*Config.size+0.5)
+		local dx = x-r+rand(0, r*2)
+		local dy = y-r+rand(0, r*2)
+		createResource(surface, dx, dy)
+	end
 end
 
 local function controlChunk(surface, area)
@@ -145,62 +205,24 @@ local function controlChunk(surface, area)
 		return
 	end
 	local df = math.min(1, (dd-300)/400)
-	if df < 1 and math.random() > df then
-		return
-	end
 	local seed = createSeed(surface, x, y)
 	rand.re_seed(seed)
-	local f0 = 0.005
-	local lavatiles = game.tile_prototypes["volcanic-orange-heat-1"]
-	local snowtiles = game.tile_prototypes["frozen-snow-0"]
-	if lavatiles then
-		f0 = 0.5
-	end
-	local f = f0*math.min(10, 1+(dd/1000))
-	f = f*Config.frequency*PATCH_RATE_FACTOR
-	local lava = isLavaChunk(lavatiles, surface, area)
-	if lavatiles and (not lava) then
-		f = f*NONVOLCANIC_FACTOR
-	end
-	local f1 = rand(0, 2147483647)/2147483647
-	local shouldGen = Config.geothermalEverywhere or (not lavatiles) or lava
-	--game.print("Chunk at " .. x .. ", " .. y .. " with chance " .. f .. " / " .. f1)
-	if shouldGen and f1 < f then
-		--game.print("Genning Chunk at " .. x .. ", " .. y)
-		x = x-16+rand(0, 32)
-		y = y-16+rand(0, 32)
-		local count = rand(2, 6)
-		if lava then
-			count = 32
-		end
-		count = math.max(1, math.ceil(df*count*Config.size))
-		--game.print("Chunk at " .. x .. ", " .. y .. " attempting " .. count)
-		for i = 1, count do
-			local r = 6
-			if lava then
-				r = 16
-			end
-			r = math.floor(r*Config.size+0.5)
-			local dx = x-r+rand(0, r*2)
-			local dy = y-r+rand(0, r*2)
-			local loctile = isLavaTile(surface, dx, dy)
-			if loctile then
-				local tile = loctile.name
-				local heat = tonumber(string.sub(tile, -1)) -- 1-4, 4 is hotter & brighter
-				--game.print(tile .. " > " .. heat)
-				local f2 = 0.4*((heat/4)^2)--0.25*heat/4
-				f1 = rand(0, 2147483647)/2147483647
-				
-				if f1 < f2 then
-					local clr = nil
-					if Config.geothermalColor then
-						clr = string.sub(tile, string.len("volcanic")+2, -2-string.len("heat")-2)
-						--game.print(clr)
-					end
-					createResource(surface, area, dx, dy, clr)
+	for dx = area.left_top.x,area.right_bottom.x,2 do
+		for dy = area.left_top.y,area.right_bottom.y,2 do
+			if df >= 1 or math.random() < df then
+				local f0,counts,radius = getSpawnData(surface, dx, dy)
+				local f = f0*math.min(10, 1+(dd/1000))
+				f = f*Config.frequency*PATCH_RATE_FACTOR*0.003 -- *0.003 because of 0.17 algo change
+				--if counts[1] > 0 then
+				--	game.print("For area " .. dx .. " , " .. dy .. " got " .. f0 .. ">" .. f .. " and " .. serpent.block(counts))
+				--end
+				local f1 = rand(0, 2147483647)/2147483647
+				local shouldGen = f1 < f
+				--game.print("Chunk at " .. x .. ", " .. y .. " with chance " .. f .. " / " .. f1)
+				if shouldGen then
+					--game.print("Genning patch at " .. dx .. " , " .. dy)
+					trySpawnPatchAt(rand, surface, dx, dy, df, counts, radius)
 				end
-			elseif not lava then
-				createResource(surface, area, dx, dy, nil)
 			end
 		end
 	end
@@ -288,5 +310,22 @@ bi3c2b+6dSuEr/rPVrK7X5ZVsqoK4BHviglehiONg2+hTX0O4Yf32n6
 EsKIr5rSLzir35rJ6ntm6Qk/uK7c4D1xry1H5Ii1jv90kuw58DEfnWI
 rgOX34gnZT2pkLfWfQwutRkThWZlXpSTB8fVIO987d+Hbo6pEellwPp
 6P/jDASWRp6eNNm4t1e4JtQL7hddSzaiAJQ2s9wGny69g/+42si<<<
+
+0.17:
+
+>>>eNptUT2IE0EUfmOMiYmIQgoPjpAibSzUwkJuRi0stLnm4MrN7
+iQ3uDd7zs7qXQQvxflTCNreVbZaeJYnWBxco6ggWIkIkWsELQTBT
+uJMdie7O5sH8/ab733z/hbgNHQAgbIh1v5MvetE60zSTiCoIfX3q
+Bs4fpaouUHX8eUMne8B7BN1I4lubY0KW3fcFZGnqrB8Usrp6kan6
+4Q5caVPV+0E1b4qZJMn+iKIuNe540gqsoHSSiCzXVWZCHghpU+dQ
+soaZ+5N6tv0sVuRI+QgpxSRZH5hc7WQ+beLCyiHMuA5pi5XAsGiw
+qQVyQqtlqWgNMyNLiPeDyUtSOuRcPiMtNUB465NAlo6210fbjVBn
+/EmtMZjfRQaKcEIIFUqzljZ9VmvB9C6rM4VzSBAO9vanmMUaxokA
+ZCAR4eGYTEYPjxImBv/EkB2DXhiQt/Mq98YnZ/Ynwy423h57ftAq
+qKJqkpSEAe3dBCZZgDtNe//XNy7h9GbjRdX+YOvCypY0YEjUxeP8
+hpbE8AIJ6EvGH38oO0XRmX9oqEduajc/vUSoFMnFXr2WLnWPJjWF
+ki6mt7E/ppJDg34jO052gRd0smb2r3VblJw2pmZbJnEgbk0qp6eg
+2x5Lx3unal4kClt9dA2PVwgM0awmHZm8TVdx5u6H6VpE2qDnyrmR
+jZJCVJTP5i8f/X0P2w45GQ=<<<
 
 --]]
