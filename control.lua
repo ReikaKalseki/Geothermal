@@ -4,7 +4,7 @@ require "constants"
 require "__DragonIndustries__.arrays"
 require "__DragonIndustries__.world"
 
-local SET_VERSION = 1
+local SET_VERSION = 2
 
 local function getPatchSize(tile)
 	local low = 2
@@ -37,18 +37,18 @@ local function calculateSpawnSet(set)
 		end
 		if Config.geothermalSpawnRules == "volcanic-and-snow" or Config.geothermalSpawnRules == "volcanic-snow-and-red-desert" then
 			if string.find(name, "frozen-snow", 1, true) then
-				set[name] = {rate = 0.03, radius = 9}
+				set[name] = {rate = 0.055, radius = 9} --was 0.03, then 0.045
 			end
 		end
 		if Config.geothermalSpawnRules == "volcanic-snow-and-red-desert" then
 			if string.find(name, "red-desert", 1, true) then
-				set[name] = {rate = 0.006, radius = 8}
+				set[name] = {rate = 0.04, radius = 8} --was 0.006, then 0.02
 			end
 		end
 	end
 	if Config.geothermalSpawnRules == "everywhere" or getTableSize(set) == 0 then
 		for name,tile in pairs(game.tile_prototypes) do
-			set[name] = {rate = 0.00025, radius = 6}
+			set[name] = {rate = 0.012, radius = 6} --0.0015 is too rare to appear enough; as was 0.006 and 0.009
 		end
 	end
 	for k,v in pairs(set) do
@@ -211,6 +211,7 @@ local function controlChunk(surface, area)
 		for dy = area.left_top.y,area.right_bottom.y,2 do
 			if df >= 1 or math.random() < df then
 				local f0,counts,radius = getSpawnData(surface, dx, dy)
+				--if f0 > 0 then game.print(f0) end
 				local f = f0*math.min(10, 1+(dd/1000))
 				f = f*Config.frequency*PATCH_RATE_FACTOR*0.003 -- *0.003 because of 0.17 algo change
 				--if counts[1] > 0 then
