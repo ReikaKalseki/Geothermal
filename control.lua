@@ -130,7 +130,11 @@ function createResource(surface, dx, dy)
 	if canPlaceAt(surface, dx, dy) then
 		local color = getPrevailingColor(surface, dx, dy)
 		local clr = (color and color ~= "red" and color ~= "orange") and ("-" .. color) or ""
-		surface.create_entity{name = "geothermal" .. clr, position = {x = dx, y = dy}, force = game.forces.neutral, amount = 1000}
+		local entity = "geothermal" .. clr;
+		if (game.entity_prototypes[entity] == nil) then
+			clr = ""
+		end
+		surface.create_entity{name = entity, position = {x = dx, y = dy}, force = game.forces.neutral, amount = 1000}
 		surface.create_entity{name = "geothermal-light" .. clr, position = {x = dx+0.5, y = dy+0.5}, force = game.forces.neutral}
 	end
 end
