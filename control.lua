@@ -269,6 +269,36 @@ script.on_event(defines.events.on_tick, function(event)
 		--game.print("Ran load code")
 	end
 	
+	if event.tick%60 == 0 then
+		for name,force in pairs(game.forces) do
+			for _,train in pairs(force.get_trains()) do
+				for __,car in pairs(train.fluid_wagons) do
+					if car.prototype.name ~= "insulated-wagon" then
+					--[[
+						for name,amt in pairs(car.get_fluid_contents()) do
+							if string.find(name, "geothermal-water", 1, true) then
+								car.remove_fluid{name=name, amount=100}
+							end
+						end
+					--]]
+						for i = 1,#car.fluidbox do
+							local box = car.fluidbox[i]
+							if box and string.find(box.name, "geothermal-water", 1, true) then
+								if box.temperature > 30 then
+									box.name = "cooling-geothermal-water"
+								else
+									box.name = "water"
+									box.temperature = 25
+								end
+								car.fluidbox[i] = {name = box.name, temperature = box.temperature, amount = box.amount}
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	
 	--local pos=game.players[1].position
 	--for k,v in pairs(game.surfaces.nauvis.find_entities_filtered{area={{pos.x-1,pos.y-1},{pos.x+1,pos.y+1}}, type="resource"}) do v.destroy() end
 end)

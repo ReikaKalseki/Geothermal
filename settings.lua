@@ -59,4 +59,11 @@ data:extend({
 			allowed_values = {"volcanic", "volcanic-and-snow", "volcanic-snow-and-red-desert", "everywhere"},
             order = "r",
 		},
+        {
+            type = "bool-setting",
+            name = "thermal-wagon",
+            setting_type = "startup",
+            default_value = true,
+            order = "r",
+		},
 })

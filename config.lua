@@ -14,6 +14,8 @@ Config.geothermalColor = settings.startup["geothermal-color"].value
 
 Config.geothermalSpawnRules = settings.startup["geothermal-spawn-rules"].value
 
+Config.thermalWagon = settings.startup["thermal-wagon"].value
+
 Config.retrogenDistance = -1
 
 Config.seedMixin = 7865

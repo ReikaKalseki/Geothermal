@@ -33,6 +33,24 @@ data:extend(
   }
 })
 
+data:extend({
+  {
+    type = "fluid",
+    name = "cooling-geothermal-water",
+    default_temperature = 20,
+    max_temperature = 350,
+    heat_capacity = "0J",
+    base_color = colors[""].base,
+    flow_color = {r=math.sqrt(colors[""].base.r), g = math.sqrt(colors[""].base.g), b=math.sqrt(colors[""].base.b)},--{r=0.8, g=0.7, b=0.7},
+	icon = "__Geothermal__/graphics/icons/water.png",
+	icon_size = 32,
+    order = "a[fluid]-a[water]",
+    pressure_to_speed_ratio = 0.3,
+    flow_to_energy_ratio = 0,
+	localised_name = {"fluid-name.geothermal-water", "", "", ""},
+  }
+  })
+
 for color,params in pairs(colors) do
 
 local display = color == "" and "" or " (" .. string.upper(string.sub(color, 2, 2)) .. string.sub(color, 3) .. ")"

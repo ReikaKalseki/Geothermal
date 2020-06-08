@@ -98,6 +98,7 @@ data:extend(
     {
       module_slots = 2
     },--]]
+	allowed_effects = {},
     radius_visualisation_picture =
     {
       filename = "__Geothermal__/graphics/entity/geothermal/geothermal-well-radius-visualization.png",
