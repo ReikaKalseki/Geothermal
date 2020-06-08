@@ -286,6 +286,7 @@ script.on_event(defines.events.on_tick, function(event)
 							if box and string.find(box.name, "geothermal-water", 1, true) then
 								if box.temperature > 30 then
 									box.name = "cooling-geothermal-water"
+									box.temperature = box.temperature-5
 								else
 									box.name = "water"
 									box.temperature = 25
