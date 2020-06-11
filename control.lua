@@ -284,13 +284,12 @@ script.on_event(defines.events.on_tick, function(event)
 						for i = 1,#car.fluidbox do
 							local box = car.fluidbox[i]
 							if box and string.find(box.name, "geothermal-water", 1, true) then
-								if box.temperature > 30 then
+								if box.temperature > 95 then
 									box.name = "cooling-geothermal-water"
-									box.temperature = box.temperature-5
 								else
 									box.name = "water"
-									box.temperature = 25
 								end
+								box.temperature = box.temperature-5
 								car.fluidbox[i] = {name = box.name, temperature = box.temperature, amount = box.amount}
 							end
 						end

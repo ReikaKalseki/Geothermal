@@ -37,7 +37,7 @@ data:extend({
   {
     type = "fluid",
     name = "cooling-geothermal-water",
-    default_temperature = 20,
+    default_temperature = 80,
     max_temperature = 350,
     heat_capacity = "0J",
     base_color = colors[""].base,
