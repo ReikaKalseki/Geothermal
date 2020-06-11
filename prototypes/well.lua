@@ -23,12 +23,10 @@ data:extend(
     energy_required = 120,
     ingredients =
     {
-		{"stone-brick", 40},
-		{"concrete", 240},
-		{"electric-engine-unit", 20},
-		{"advanced-circuit", 10},
-		{"copper-plate", 120},
-		{"steel-plate", 80}
+		{"stone-brick", 90},
+		{"concrete", 270},
+		{"electric-engine-unit", 60},
+		{"steel-plate", 120}
     },
     result = "geothermal-well",
   }

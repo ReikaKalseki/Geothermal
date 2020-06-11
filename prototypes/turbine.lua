@@ -24,7 +24,8 @@ data:extend(
     ingredients =
     {
 		{"stone-brick", 160},
-		{"concrete", 120},
+		{"pipe", 120},
+		{"copper-plate", 240},
 		{"advanced-circuit", 40},
 		{"steel-plate", 40}
     },
@@ -48,153 +49,18 @@ data:extend(
     collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
 
-    animation = make_4way_animation_from_spritesheet({ layers =
+    animation =
     {
-      {
-        filename = "__Geothermal__/graphics/entity/chemical-plant/chemical-plant.png",
-        width = 122,
-        height = 134,
-        frame_count = 1,
-        shift = util.by_pixel(-5, -4.5),
-        hr_version = {
-          filename = "__Geothermal__/graphics/entity/chemical-plant/hr-chemical-plant.png",
-          width = 244,
-          height = 268,
-          frame_count = 1,
-          shift = util.by_pixel(-5, -4.5),
-          scale = 0.5
-          }
-      },
-      {
-        filename = "__Geothermal__/graphics/entity/chemical-plant/chemical-plant-shadow.png",
-        width = 175,
-        height = 110,
-        frame_count = 1,
-        shift = util.by_pixel(31.5, 11),
-        draw_as_shadow = true,
-        hr_version = {
-          filename = "__Geothermal__/graphics/entity/chemical-plant/hr-chemical-plant-shadow.png",
-          width = 350,
-          height = 219,
-          frame_count = 1,
-          shift = util.by_pixel(31.5, 10.75),
-          draw_as_shadow = true,
-          scale = 0.5
-          }
-      },
-    }}),
-    working_visualisations =
-    {
-      {
-        north_position = util.by_pixel(30, -24),
-        west_position = util.by_pixel(1, -49.5),
-        south_position = util.by_pixel(-30, -48),
-        east_position = util.by_pixel(-11, -1),
-        apply_recipe_tint = "primary",
-        animation =
-        {
-          filename = "__Geothermal__/graphics/entity/chemical-plant/boiling-green-patch.png",
-          frame_count = 32,
-          width = 15,
-          height = 10,
-          animation_speed = 0.5,
-          hr_version = {
-            filename = "__Geothermal__/graphics/entity/chemical-plant/hr-boiling-green-patch.png",
-            frame_count = 32,
-            width = 30,
-            height = 20,
-            animation_speed = 0.5,
-            scale = 0.5
-          }
-        }
-      },
-
-      {
-        north_position = util.by_pixel(30, -24),
-        west_position = util.by_pixel(1, -49.5),
-        south_position = util.by_pixel(-30, -48),
-        east_position = util.by_pixel(-11, -1),
-        apply_recipe_tint = "secondary",
-        animation =
-        {
-          filename = "__Geothermal__/graphics/entity/chemical-plant/boiling-green-patch-mask.png",
-          frame_count = 32,
-          width = 15,
-          height = 10,
-          animation_speed = 0.5,
-          hr_version = {
-            filename = "__Geothermal__/graphics/entity/chemical-plant/hr-boiling-green-patch-mask.png",
-            frame_count = 32,
-            width = 30,
-            height = 20,
-            animation_speed = 0.5,
-            scale = 0.5
-          }
-        }
-      },
-
-
-      {
-        apply_recipe_tint = "tertiary",
-        north_position = {0, 0},
-        west_position = {0, 0},
-        south_position = {0, 0},
-        east_position = {0, 0},
-        north_animation =
-        {
-          filename = "__Geothermal__/graphics/entity/chemical-plant/boiling-window-green-patch.png",
-          frame_count = 1,
-          width = 87,
-          height = 60,
-          shift = util.by_pixel(0, -5),
-          hr_version = {
-            filename = "__Geothermal__/graphics/entity/chemical-plant/hr-boiling-window-green-patch.png",
-            x = 0,
-            frame_count = 1,
-            width = 174,
-            height = 119,
-            shift = util.by_pixel(0, -5.25),
-            scale = 0.5
-          }
-        },
-        east_animation =
-        {
-          filename = "__Geothermal__/graphics/entity/chemical-plant/boiling-window-green-patch.png",
-          x = 87,
-          frame_count = 1,
-          width = 87,
-          height = 60,
-          shift = util.by_pixel(0, -5),
-          hr_version = {
-            filename = "__Geothermal__/graphics/entity/chemical-plant/hr-boiling-window-green-patch.png",
-            x = 174,
-            frame_count = 1,
-            width = 174,
-            height = 119,
-            shift = util.by_pixel(0, -5.25),
-            scale = 0.5
-          }
-        },
-        south_animation =
-        {
-          filename = "__Geothermal__/graphics/entity/chemical-plant/boiling-window-green-patch.png",
-          x = 174,
-          frame_count = 1,
-          width = 87,
-          height = 60,
-          shift = util.by_pixel(0, -5),
-          hr_version = {
-            filename = "__Geothermal__/graphics/entity/chemical-plant/hr-boiling-window-green-patch.png",
-            x = 348,
-            frame_count = 1,
-            width = 174,
-            height = 119,
-            shift = util.by_pixel(0, -5.25),
-            scale = 0.5
-          }
-        }
-      }
+      filename = "__Geothermal__/graphics/entity/heat-exchanger/quarry-horizontal.png",
+      priority = "high",
+      width = 128,
+      height = 128,
+      frame_count = 16,
+      line_length = 16,
+      shift = {0.35, -0.1},
+      animation_speed = 0.8
     },
+	
     vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
     working_sound =
     {
@@ -224,28 +90,32 @@ data:extend(
       {
         production_type = "input",
         pipe_covers = pipecoverspictures(),
+        pipe_picture = assembler2pipepictures(),
         base_area = 10,
         base_level = -1,
-        pipe_connections = {{ type="input", position = {-1, -2} }}
+        pipe_connections = {{ type="input", position = {0, -2} }}
       },
       {
         production_type = "input",
         pipe_covers = pipecoverspictures(),
+        pipe_picture = assembler2pipepictures(),
         base_area = 10,
         base_level = -1,
-        pipe_connections = {{ type="input", position = {1, -2} }}
+        pipe_connections = {{ type="input", position = {-2, 0} }}
       },
       {
         production_type = "output",
         pipe_covers = pipecoverspictures(),
+        pipe_picture = assembler2pipepictures(),
         base_level = 1,
-        pipe_connections = {{ position = {-1, 2} }}
+        pipe_connections = {{type="output",  position = {0, 2} }}
       },
       {
         production_type = "output",
         pipe_covers = pipecoverspictures(),
+        pipe_picture = assembler2pipepictures(),
         base_level = 1,
-        pipe_connections = {{ position = {1, 2} }}
+        pipe_connections = {{ type="output", position = {2, 0} }}
       }
     }
   }

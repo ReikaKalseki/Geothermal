@@ -7,6 +7,8 @@ require "__DragonIndustries__/utility-entities"
 local highConsumeMultiply = 4
 local exchangersPerWell = 1.2--1.6--0.8--2
 
+local fluids = {}
+
 local colors = {
 	[""] = {base = {r=0.6, g=0.34, b=0.4}, light = {r=1, g=0.7, b=0.2}}
 }
@@ -49,7 +51,7 @@ data:extend({
     flow_to_energy_ratio = 0,
 	localised_name = {"fluid-name.geothermal-water", "", "", ""},
   }
-  })
+})
 
 for color,params in pairs(colors) do
 
@@ -77,8 +79,10 @@ data:extend(
   }
 })
 
+local fluid = data.raw.fluid["geothermal-water" .. color]
+table.insert(fluids, fluid)
+
 if color ~= "" then
-	local fluid = data.raw.fluid["geothermal-water" .. color]
 	fluid.icon = nil
     fluid.icons = {{icon = "__Geothermal__/graphics/icons/water.png"}, {icon = "__Geothermal__/graphics/icons/overlay" .. color .. ".png"}}
 end
@@ -236,3 +240,5 @@ data:extend(
 })
 
 end
+
+return fluids

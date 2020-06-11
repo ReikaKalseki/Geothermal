@@ -8,7 +8,8 @@ data:extend(
 		"fluid-handling",
 		"flammables",
 		"electric-engine",
-		"concrete"
+		"advanced-electronics",
+		"concrete",
     },
     icon = "__Geothermal__/graphics/technology/geothermal.png",
     effects =
@@ -51,7 +52,8 @@ data:extend(
     {
 		"advanced-oil-processing",
 		"geothermal",
-		"advanced-electronics-2"
+		"advanced-electronics-2",
+		"production-science-pack"
     },
     icon = "__Geothermal__/graphics/technology/geothermal.png",
     effects =
@@ -84,5 +86,34 @@ data:extend(
     order = "[steam]-2",
 	icon_size = 128,
   },
+   {
+    type = "technology",
+    name = "geothermal-filtering",
+    prerequisites =
+    {
+		"geothermal"
+    },
+    icon = "__Geothermal__/graphics/technology/geothermal.png",
+    effects =
+    {
+      {
+        type = "unlock-recipe",
+        recipe = "geothermal-filter"
+      }
+    },
+    unit =
+    {
+      count = 300,
+      ingredients =
+      {
+        {"automation-science-pack", 1},
+        {"logistic-science-pack", 1},
+        {"chemical-science-pack", 1},
+      },
+      time = 40
+    },
+    order = "[steam]-2",
+	icon_size = 128,
+  }
 }
 )
