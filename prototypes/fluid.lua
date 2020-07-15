@@ -96,8 +96,8 @@ local prod2 = {
 }
 
 if params.byproduct then
-	table.insert(prod1, {type = "item", name = params.byproduct, probability = 0.0005, amount = 1})
-	table.insert(prod2, {type = "item", name = params.byproduct, probability = 0.0003*highConsumeMultiply, amount = 1})
+	table.insert(prod1, {type = "item", name = params.byproduct, probability = 0.002*Config.byproductRate, amount = 1})
+	table.insert(prod2, {type = "item", name = params.byproduct, probability = 0.0012*highConsumeMultiply*Config.byproductRate, amount = 1})
 end
 
 data:extend(

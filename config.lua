@@ -16,6 +16,8 @@ Config.geothermalSpawnRules = settings.startup["geothermal-spawn-rules"].value
 
 Config.thermalWagon = settings.startup["thermal-wagon"].value
 
+Config.byproductRate = settings.startup["geothermal-byproduct-rate"].value
+
 Config.retrogenDistance = -1
 
 Config.seedMixin = 7865

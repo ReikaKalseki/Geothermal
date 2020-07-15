@@ -66,4 +66,13 @@ data:extend({
             default_value = true,
             order = "r",
 		},
+        {
+            type = "double-setting",
+            name = "geothermal-byproduct-rate",
+            setting_type = "startup",
+            default_value = 1,
+            order = "r",
+			minimum_value = 0.125,
+			maximum_value = 5,
+		},
 })
