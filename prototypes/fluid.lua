@@ -50,6 +50,7 @@ data:extend({
     pressure_to_speed_ratio = 0.3,
     flow_to_energy_ratio = 0,
 	localised_name = {"fluid-name.geothermal-water", "", "", ""},
+	hidden = true,
   }
 })
 

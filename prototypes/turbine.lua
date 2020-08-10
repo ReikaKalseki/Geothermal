@@ -51,7 +51,7 @@ data:extend(
 
     animation =
     {
-      filename = "__Geothermal__/graphics/entity/heat-exchanger/quarry-horizontal.png",
+      filename = "__Geothermal__/graphics/entity/heat-exchanger/exchanger-horizontal.png",
       priority = "high",
       width = 128,
       height = 128,
