@@ -231,13 +231,34 @@ data:extend(
         height = 192,
 		scale = 0.5,
         frame_count = 6,
-        variation_count = 1
+        variation_count = 1,
+		--draw_as_glow = true
       }
     },
+    stages_effect =
+    {
+      sheet =
+      {
+        filename = "__Geothermal__/graphics/entity/geothermal/glow/patch-sheet" .. color .. ".png",
+        priority = "extra-high",
+        width = 256,
+        height = 192,
+		scale = 0.5,
+        frame_count = 6,
+        variation_count = 1,
+          blend_mode = "additive",
+         -- flags = {"light"}
+      }
+    },
+    effect_animation_period = 8,
+    effect_animation_period_deviation = 2,
+    effect_darkness_multiplier = 3.0,
+    min_effect_alpha = 0.2,
+    max_effect_alpha = 0.3,
     map_color = {r=0.8, g=0.6, b=0.2},
     map_grid = false
   },
-  createBasicLight("geothermal-light" .. color, {brightness = 0.75, size = 8, color = params.light})
+  createBasicLight("geothermal-light" .. color, {brightness = 0.25, size = 18, color = params.light})
 })
 
 end
