@@ -247,7 +247,7 @@ data:extend(
         frame_count = 6,
         variation_count = 1,
           blend_mode = "additive",
-         -- flags = {"light"}
+          flags = {"light"}
       }
     },
     effect_animation_period = 8,
