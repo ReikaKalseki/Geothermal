@@ -171,7 +171,7 @@ local function getSpawnData(surface, x, y)
 		for k = -1,1 do
 			local tile = surface.get_tile(x+i, y+k)
 			--game.print(tile.name .. " > " .. serpent.block(set[tile.name]))
-			if set[tile.name] then
+			if tile.valid and set[tile.name] then
 				ret = ret+set[tile.name].rate
 				sizes[1] = math.max(sizes[1], set[tile.name].count_min)
 				sizes[2] = math.max(sizes[2], set[tile.name].count_max)
