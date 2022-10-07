@@ -89,7 +89,7 @@ if color ~= "" then
 end
 
 local prod1 = {
-	{type="fluid", name="steam", amount=math.floor(Config.powerFactor*12), temperature = 240} --240 so can run Bob Mk2 steam engine
+	{type="fluid", name="steam", amount=math.floor(Config.powerFactor*12), temperature = 315} --315 so can run Bob Mk2 steam engine
 }
 
 local prod2 = {

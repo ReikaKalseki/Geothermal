@@ -171,7 +171,7 @@ local function getSpawnData(surface, x, y)
 		for k = -1,1 do
 			local tile = surface.get_tile(x+i, y+k)
 			--game.print(tile.name .. " > " .. serpent.block(set[tile.name]))
-			if set[tile.name] then
+			if tile.valid and set[tile.name] then
 				ret = ret+set[tile.name].rate
 				sizes[1] = math.max(sizes[1], set[tile.name].count_min)
 				sizes[2] = math.max(sizes[2], set[tile.name].count_max)
@@ -205,10 +205,11 @@ local function controlChunk(surface, area)
 	local x = (area.left_top.x+area.right_bottom.x)/2
 	local y = (area.left_top.y+area.right_bottom.y)/2
 	local dd = math.sqrt(x*x+y*y)
-	if dd < 300 then
+	local mind = Config.minDistance
+	if dd < mind then
 		return
 	end
-	local df = math.min(1, (dd-300)/400)
+	local df = math.min(1, (dd-mind)/(mind+100))
 	local seed = createSeed(surface, x, y)
 	rand.re_seed(seed)
 	for dx = area.left_top.x,area.right_bottom.x,2 do
@@ -216,7 +217,7 @@ local function controlChunk(surface, area)
 			if df >= 1 or math.random() < df then
 				local f0,counts,radius = getSpawnData(surface, dx, dy)
 				--if f0 > 0 then game.print(f0) end
-				local f = f0*math.min(10, 1+(dd/1000))
+				local f = f0*math.min(Config.rateClamp, 1+(dd/(1000*Config.distanceScalar)))
 				f = f*Config.frequency*PATCH_RATE_FACTOR*0.003 -- *0.003 because of 0.17 algo change
 				--if counts[1] > 0 then
 				--	game.print("For area " .. dx .. " , " .. dy .. " got " .. f0 .. ">" .. f .. " and " .. serpent.block(counts))

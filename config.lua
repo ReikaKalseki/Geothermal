@@ -18,6 +18,12 @@ Config.thermalWagon = settings.startup["thermal-wagon"].value
 
 Config.byproductRate = settings.startup["geothermal-byproduct-rate"].value
 
+Config.distanceScalar = settings.startup["geothermal-distance-scalar"].value
+
+Config.rateClamp = settings.startup["geothermal-rate-clamp"].value
+
+Config.minDistance = settings.startup["geothermal-min-distance"].value
+
 Config.retrogenDistance = -1
 
 Config.seedMixin = 7865
