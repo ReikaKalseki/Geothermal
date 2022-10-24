@@ -85,7 +85,7 @@ table.insert(fluids, fluid)
 
 if color ~= "" then
 	fluid.icon = nil
-    fluid.icons = {{icon = "__Geothermal__/graphics/icons/water.png"}, {icon = "__Geothermal__/graphics/icons/overlay" .. color .. ".png"}}
+    fluid.icons = {{icon = "__Geothermal__/graphics/icons/water.png", icon_size = 32}, {icon = "__Geothermal__/graphics/icons/overlay" .. color .. ".png", icon_size = 32}}
 end
 
 local prod1 = {
@@ -93,7 +93,7 @@ local prod1 = {
 }
 
 local prod2 = {
-	{type="fluid", name="steam", amount=math.floor(Config.powerFactor*30*highConsumeMultiply), temperature = 500}
+	{type="fluid", name="steam", amount=math.floor(Config.powerFactor*30*highConsumeMultiply), temperature = 615} --615 so can run Bob Mk2 steam turbine
 }
 
 if params.byproduct then

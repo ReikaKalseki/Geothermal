@@ -20,16 +20,30 @@ data:extend(
     type = "recipe",
     name = "geothermal-heat-exchanger",
     enabled = "false",
-    energy_required = 120,
-    ingredients =
-    {
-		{"stone-brick", 160},
-		{"pipe", 120},
-		{"copper-plate", 240},
-		{"advanced-circuit", 40},
-		{"steel-plate", 40}
-    },
-    result = "geothermal-heat-exchanger",
+	normal = {
+		energy_required = 120,
+		ingredients =
+		{
+			{"stone-brick", 120},
+			{"pipe", 60},
+			{"advanced-circuit", 30},
+			{"steel-plate", 40},
+			{"iron-gear-wheel", 50}
+		},
+		result = "geothermal-heat-exchanger",
+	},
+	expensive = {
+		energy_required = 200,
+		ingredients =
+		{
+			{"stone-brick", 180},
+			{"pipe", 120},
+			{"advanced-circuit", 50},
+			{"steel-plate", 90},
+			{"iron-gear-wheel", 200}
+		},
+		result = "geothermal-heat-exchanger",
+	},
   }
 }
 )

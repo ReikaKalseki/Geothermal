@@ -20,15 +20,30 @@ data:extend(
     type = "recipe",
     name = "geothermal-well",
     enabled = "false",
-    energy_required = 120,
-    ingredients =
-    {
-		{"stone-brick", 90},
-		{"concrete", 270},
-		{"electric-engine-unit", 60},
-		{"steel-plate", 120}
-    },
-    result = "geothermal-well",
+	normal = {
+		energy_required = 90,
+		ingredients =
+		{
+			{"stone-brick", 90},
+			{"concrete", 180},
+			{"electric-engine-unit", 60},
+			{"steel-plate", 120},
+			{"copper-plate", 240},
+		},
+		result = "geothermal-well",
+	},
+	expensive = {
+		energy_required = 180,
+		ingredients =
+		{
+			{"stone-brick", 300},
+			{"concrete", 270},
+			{"electric-engine-unit", 90},
+			{"steel-plate", 300},
+			{"copper-plate", 400},
+		},
+		result = "geothermal-well",
+	}
   }
 }
 )

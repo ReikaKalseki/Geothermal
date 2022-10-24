@@ -13,15 +13,19 @@ if data.raw.item["invar-alloy"] then--[[
 	addItemToRecipe("geothermal-well", "invar-alloy", 40, 120, false)
 	addItemToRecipe("geothermal-well", "invar-alloy", 40, 120, false)
 	--]]
-	replaceItemInRecipe("geothermal-well", "steel-plate", "invar-alloy", 1, false)
-	addItemToRecipe("geothermal-well", "steel-gear-wheel", 10, 20, false)
-	addItemToRecipe("geothermal-well", "steel-bearing", 10, 20, false)
-	addItemToRecipe("geothermal-well", "silver-plate", 20, 50, false)
+	replaceItemInRecipe("geothermal-well", "steel-plate", "invar-alloy", 2, false)
+	addItemToRecipe("geothermal-well", "steel-gear-wheel", 25, 80, false)
+	addItemToRecipe("geothermal-well", "steel-bearing", 10, 40, false)
+	replaceItemInRecipe("geothermal-well", "copper-plate", "copper-pipe", 1, false)
 	
-	replaceItemInRecipe("geothermal-heat-exchanger", "steel-plate", "brass-alloy", 1, false)
-	replaceItemInRecipe("geothermal-heat-exchanger", "copper-plate", "copper-pipe", 1, false)
-	addItemToRecipe("geothermal-heat-exchanger", "cobalt-steel-bearing", 10, 20, false)
-	addItemToRecipe("geothermal-heat-exchanger", "cobalt-steel-gear-wheel", 10, 20, false)
+	replaceItemInRecipe("geothermal-heat-exchanger", "steel-plate", "cobalt-steel-alloy", 1, false)
+	if data.raw.item["steel-pipe"] then
+		replaceItemInRecipe("geothermal-heat-exchanger", "pipe", "steel-pipe", 1, false)
+	end
+	addItemToRecipe("geothermal-heat-exchanger", "silver-plate", 50, 200, false)
+	addItemToRecipe("geothermal-heat-exchanger", "cobalt-steel-bearing", 25, 100, false)
+	--addItemToRecipe("geothermal-heat-exchanger", "brass-gear-wheel", 25, 100, false)
+	replaceItemInRecipe("geothermal-heat-exchanger", "iron-gear-wheel", "brass-gear-wheel", 1, false)
 	
-	addItemToRecipe("geothermal-filter", "brass-gear-wheel", 10, 20, false)
+	addItemToRecipe("geothermal-filter", "brass-gear-wheel", 10, 25, false)
 end
