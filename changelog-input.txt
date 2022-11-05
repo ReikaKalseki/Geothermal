@@ -1,4 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.148.1
+Date: Oct 31 2022
+	- Fixed potential missing icon-size in some cases
+	- Raised advanced geothermal steam temperature to 615, to be able to run Bob Mk2 steam turbine
+	- Expanded BobMod integration again
+	- Added normal/expensive split on recipes
+---------------------------------------------------------------------------------------------------
+Version: 1.144.1
+Date: Oct 7 2022
+	- Added many new config options to control generation rate and spawning locations
+	- Fixed "tile was invalid" script error with modded surfaces
+	- Raised temperature of basic geothermal steam to again be able to run Bob Mk2 steam engines
+	- Overhauled recipes to include much more BobMods integration
+---------------------------------------------------------------------------------------------------
 Version: 1.105.1
 Date: Apr 28 2021
 	- Added new better patch graphics (again)
