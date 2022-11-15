@@ -24,7 +24,7 @@ local function getPatchSize(tile)
 	return low, high
 end
 
-local function calculateSpawnSet(set)
+local function calculateSpawnSet(glbl)
 	local lavatiles = game.tile_prototypes["volcanic-orange-heat-1"]
 	local snowtiles = game.tile_prototypes["frozen-snow-0"]
 	local set = {}
@@ -56,7 +56,7 @@ local function calculateSpawnSet(set)
 			local low,high = getPatchSize(k)
 			set[k] = {rate = v, count_min = low, count_max = high}
 			--game.print(k)
-		elseif type(v) == "table" and not v[count_min] then
+		elseif type(v) == "table" and not v.count_min then
 			local low,high = getPatchSize(k)
 			v.count_min = low
 			v.count_max = high
@@ -153,6 +153,7 @@ function cantorCombine(a, b)
 	return 0.5*(k1 + k2)*(k1 + k2 + 1) + k2
 end
 
+---@return integer
 function createSeed(surface, x, y) --Used by Minecraft MapGen
 	local seed = surface.map_gen_settings.seed
 	if Config.seedMixin ~= 0 then
@@ -210,7 +211,7 @@ local function controlChunk(surface, area)
 		return
 	end
 	local df = math.min(1, (dd-mind)/(mind+100))
-	local seed = createSeed(surface, x, y)
+	local seed = createSeed(surface, x, y) --[[@as uint]]
 	rand.re_seed(seed)
 	for dx = area.left_top.x,area.right_bottom.x,2 do
 		for dy = area.left_top.y,area.right_bottom.y,2 do

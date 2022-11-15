@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.152.1
+Date: Nov 15 2022
+	- Major code cleanup, fixing tile type detection and responsiveness
+---------------------------------------------------------------------------------------------------
 Version: 1.148.1
 Date: Oct 31 2022
 	- Fixed potential missing icon-size in some cases
@@ -101,16 +105,16 @@ Date: Jan 30 2018
 	- Added cluster size option
 	- Removed "flipped" versions of recipes
 ---------------------------------------------------------------------------------------------------
-Version: 1.0.1
+Version: 1.0.0
 Game: 0.15
 Date: Aug 8 2017
 	- Added concrete dependency
 	- Forced loading after AlienBiomes
 ---------------------------------------------------------------------------------------------------
-Version: 1.0.0
+Version: 0.0.9
 Game: 0.15
 Date: Jul 14 2017
-	- Release
+	- First Release
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.2
 Game: 0.15
