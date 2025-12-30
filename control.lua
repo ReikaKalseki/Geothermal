@@ -1,6 +1,106 @@
-require "config"
 require "constants"
 
+--TODO move this to DI
+local function isTileType(surface, x, y, name)
+	if not surface then return false end
+	if not surface.valid then return false end
+	local tile = surface.get_tile(x, y)
+	if not tile.valid then return false end
+	if type(name) == "table" then
+		for _,seek in pairs(name) do
+			if string.find(tile.name, seek, 1, true) then
+				return true
+			end
+		end
+	else
+		return string.find(tile.name, name, 1, true)
+	end
+end
+
+--TODO move this to DI
+local function addGlobalKV(k, v)
+	if not storage.geothermal then storage.geothermal = {} end
+	local at = storage.geothermal
+	local prev = nil
+	if type(k) == "table" then
+		for i,step in ipairs(k) do
+			prev = at
+			at = prev[step]
+			if not at then
+				at = {}
+				prev[step] = at
+			end
+			if i == #k then
+				prev[step] = v
+			end
+		end
+	else
+		storage.geothermal[k] = v
+	end
+end
+
+--might even want to move the whole compound entity framework to DI
+script.on_event(defines.events.on_script_trigger_effect, function(event)
+	local effect_id = event.effect_id
+
+	local entity = event.target_entity
+	if not (entity and entity.valid) then
+		return
+	end
+
+	if effect_id == "on-create-geothermal-extractor" then
+		local assembler = entity.surface.create_entity{name="geothermal-extractor-fluid-input", position = {entity.position.x, entity.position.y-1}, force=entity.force, direction=entity.direction}
+		assembler.operable = false
+		assembler.destructible = false
+		assembler.minable_flag = false
+		assembler.rotatable = false
+		
+		addGlobalKV({"extractors", entity.unit_number}, {entity=entity, logic=assembler})
+	elseif effect_id == "on-create-geothermal-well" then
+		entity.operable = false
+		addGlobalKV({"wells", entity.unit_number}, {entity=entity})
+	end
+end)
+
+script.on_nth_tick(300, function(data)
+	if storage.geothermal and storage.geothermal.wells then
+		for unit,entry in pairs(storage.geothermal.wells) do
+			if entry.entity.valid then
+				--entry.entity.temperature = 625
+				local surface = entry.entity.surface
+				local x = entry.entity.position.x
+				local y = entry.entity.position.y
+				local tileN = isTileType(surface, x, y-2, {"lava", "geothermal", "molten"})
+				local tileE = isTileType(surface, x+2, y, {"lava", "geothermal", "molten"})
+				local tileS = isTileType(surface, x, y+2, {"lava", "geothermal", "molten"})
+				local tileW = isTileType(surface, x-2, y, {"lava", "geothermal", "molten"})
+				local tiername = nil
+				if tileN or tileE or tileS or tileW then
+					tiername = "hot" --lava is hot
+				else
+					local filter = {}
+					local tiers = {}
+					local tiernames = {}
+					for i,type in ipairs(PATCH_TEMPERATURES) do
+						local name = "geothermal-patch-" .. type
+						table.insert(filter, name)
+						tiers[name] = i
+						tiernames[i] = name
+					end
+					local patches = surface.find_entities_filtered{area = {{x-2, y-2}, {x+2, y+2}}, name = filter}
+					for _,patch in pairs(patches) do
+						tier = math.max(tier, tiers[patch.name])
+					end
+					tiername = tiernames[tier]
+				end
+				local active = tiername ~= nil
+				entry.entity.set_heat_setting({temperature = active and PATCH_TEMPERATURES[tiername] or 15, mode = active and "add" or "at-most"})
+			end
+		end
+	end
+end)
+
+--[[
 require "__DragonIndustries__.arrays"
 require "__DragonIndustries__.world"
 
@@ -211,7 +311,7 @@ local function controlChunk(surface, area)
 		return
 	end
 	local df = math.min(1, (dd-mind)/(mind+100))
-	local seed = createSeed(surface, x, y) --[[@as uint]]
+	local seed = createSeed(surface, x, y) --[[@as uint]]--[[
 	rand.re_seed(seed)
 	for dx = area.left_top.x,area.right_bottom.x,2 do
 		for dy = area.left_top.y,area.right_bottom.y,2 do
@@ -282,7 +382,7 @@ script.on_event(defines.events.on_tick, function(event)
 								car.remove_fluid{name=name, amount=100}
 							end
 						end
-					--]]
+					--]]--[[
 						for i = 1,#car.fluidbox do
 							local box = car.fluidbox[i]
 							if box and string.find(box.name, "geothermal-water", 1, true) then
@@ -304,6 +404,7 @@ script.on_event(defines.events.on_tick, function(event)
 	--local pos=game.players[1].position
 	--for k,v in pairs(game.surfaces.nauvis.find_entities_filtered{area={{pos.x-1,pos.y-1},{pos.x+1,pos.y+1}}, type="resource"}) do v.destroy() end
 end)
+--]]
 
 --[[
 Good AlienBiomes test map: (0.15)

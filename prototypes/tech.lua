@@ -5,75 +5,21 @@ data:extend(
     name = "geothermal",
     prerequisites =
     {
-		"fluid-handling",
-		"flammables",
-		"electric-engine",
-		"advanced-electronics",
+		"advanced-circuit",
 		"concrete",
+		"production-science-pack",
     },
     icon = "__Geothermal__/graphics/technology/geothermal.png",
     effects =
     {
       {
         type = "unlock-recipe",
-        recipe = "geothermal-well"
+        recipe = "geothermal-heat-well"
       },
-      {
-        type = "unlock-recipe",
-        recipe = "geothermal-heat-exchanger"
-      },--[[
-      {
-        type = "unlock-recipe",
-        recipe = "geothermal-exchange"
-      },
-      {
-        type = "unlock-recipe",
-        recipe = "geothermal-exchange-flipped"
-      },--]]
     },
     unit =
     {
-      count = 250,
-      ingredients =
-      {
-        {"automation-science-pack", 1},
-        {"logistic-science-pack", 1},
-        {"chemical-science-pack", 1}
-      },
-      time = 30
-    },
-    order = "[steam]-2",
-	icon_size = 128,
-  },
-   {
-    type = "technology",
-    name = "geothermal-2",
-    prerequisites =
-    {
-		"advanced-oil-processing",
-		"geothermal",
-		"advanced-electronics-2",
-		"production-science-pack"
-    },
-    icon = "__Geothermal__/graphics/technology/geothermal.png",
-    effects =
-    {--[[
-      {
-        type = "unlock-recipe",
-        recipe = "geothermal-exchange-2"
-      },
-      {
-        type = "unlock-recipe",
-        recipe = "geothermal-exchange-2-flipped"
-      },--]]
-      {
-        type = "unlock-recipe",
-        recipe = "steam-turbine"
-      }
-    },
-    unit =
-    {
-      count = 400,
+      count = 1000,
       ingredients =
       {
         {"automation-science-pack", 1},
@@ -81,39 +27,50 @@ data:extend(
         {"chemical-science-pack", 1},
         {"production-science-pack", 1},
       },
-      time = 40
+      time = 60
     },
     order = "[steam]-2",
 	icon_size = 128,
   },
-   {
+  {
     type = "technology",
-    name = "geothermal-filtering",
+    name = "geothermal-2",
     prerequisites =
     {
-		"geothermal"
+		"geothermal",
+		"electric-engine",
+		"automation-3",
+		"advanced-material-processing-2",
+		"processing-unit",
     },
     icon = "__Geothermal__/graphics/technology/geothermal.png",
     effects =
     {
       {
         type = "unlock-recipe",
-        recipe = "geothermal-filter"
+        recipe = "geothermal-t2-exchanger"
       }
     },
     unit =
     {
-      count = 300,
+      count = 3000,
       ingredients =
       {
         {"automation-science-pack", 1},
         {"logistic-science-pack", 1},
         {"chemical-science-pack", 1},
+        {"production-science-pack", 1},
       },
-      time = 40
+      time = 60
     },
     order = "[steam]-2",
 	icon_size = 128,
   }
-}
-)
+})
+
+if settings.startup["geothermal-uses-tungsten"].value then
+	table.insert(data.raw.technology["geothermal"].unit.ingredients, {"space-science-pack", 1})
+	table.insert(data.raw.technology["geothermal"].unit.ingredients, {"metallurgic-science-pack", 1})
+	table.insert(data.raw.technology["geothermal-2"].unit.ingredients, {"space-science-pack", 1})
+	table.insert(data.raw.technology["geothermal-2"].unit.ingredients, {"metallurgic-science-pack", 1})
+end

@@ -1,3 +1,3 @@
-require("config")
+--require("config")
 
-require("prototypes.recipe-updates")
+--require("prototypes.recipe-updates")

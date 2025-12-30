@@ -1,11 +1,11 @@
 {
   "name": "Geothermal",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "title": "Geothermal",
   "author": "Reika",
   "contact": "",
   "homepage": "",
-  "factorio_version": "1.1",
-  "description": "Adds magma sources and geothermal generators.",
-  "dependencies": ["base", "DragonIndustries", "? alien-biomes"]
+  "factorio_version": "2.0",
+  "description": "Adds geothermal sources of power.",
+  "dependencies": ["base", "(?) DragonIndustries", "? alien-biomes"]
 }
