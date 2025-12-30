@@ -22,5 +22,6 @@ function addDerivativeFull(template, overrides)
 end
 
 function addDerivative(type, name, overrides)
+	if not data.raw[type] then error("No such prototype type '" .. type .. "' to add a derivative of '" .. name .. "'!") end
 	addDerivativeFull(data.raw[type][name], overrides)
 end

@@ -10,5 +10,5 @@ require("prototypes.fluid")
 --require("prototypes.insulated-wagon")
 
 require "prototypes.wellv2"
-require "prototypes.t2exchanger"
+require "prototypes.exchanger"
 --require "prototypes.extractor"

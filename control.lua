@@ -1,6 +1,11 @@
 require "constants"
 
 --TODO move this to DI
+function getOppositeDirection(dir) --direction is a number from 0 to 15
+	return (dir+8)%16
+end
+
+--TODO move this to DI
 local function isTileType(surface, x, y, name)
 	if not surface then return false end
 	if not surface.valid then return false end
@@ -39,6 +44,31 @@ local function addGlobalKV(k, v)
 	end
 end
 
+local function onEntityRotated(event)
+	
+end
+
+local function onEntityRemoved(event)
+	if event.entity and event.entity.valid then
+		if event.entity.name == "geothermal-exchanger" then
+			if storage.geothermal and storage.geothermal.exchangers then
+				local entry = storage.geothermal.exchangers[event.entity.unit_number]
+				if entry and entry.entity.valid then
+					entry.input.destroy()
+					storage.geothermal.exchangers[event.entity.unit_number] = nil
+				end
+			end
+		end
+	end
+end
+
+script.on_event(defines.events.on_entity_died, onEntityRemoved)
+script.on_event(defines.events.on_pre_player_mined_item, onEntityRemoved)
+script.on_event(defines.events.on_robot_pre_mined, onEntityRemoved)
+script.on_event(defines.events.script_raised_destroy, onEntityRemoved)
+
+script.on_event(defines.events.on_player_rotated_entity, onEntityRotated)
+
 --might even want to move the whole compound entity framework to DI
 script.on_event(defines.events.on_script_trigger_effect, function(event)
 	local effect_id = event.effect_id
@@ -59,42 +89,79 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 	elseif effect_id == "on-create-geothermal-well" then
 		entity.operable = false
 		addGlobalKV({"wells", entity.unit_number}, {entity=entity})
+	elseif effect_id == "on-create-geothermal-exchanger" then
+		local pos = entity.position
+		if entity.direction == defines.direction.north then
+			--pos.y = pos.y+1
+		end
+		if entity.direction == defines.direction.south then
+			--pos.y = pos.y-1
+		end
+		if entity.direction == defines.direction.east then
+			--pos.x = pos.x-1
+		end
+		if entity.direction == defines.direction.west then
+			--pos.x = pos.x+1
+		end
+		local assembler = entity.surface.create_entity{name="geothermal-exchanger-fluid-input", position = pos, force=entity.force, direction=getOppositeDirection(entity.direction)}
+		assembler.operable = false
+		assembler.destructible = false
+		assembler.minable_flag = false
+		assembler.rotatable = false
+		addGlobalKV({"exchangers", entity.unit_number}, {entity=entity, input=assembler})
 	end
 end)
 
-script.on_nth_tick(300, function(data)
-	if storage.geothermal and storage.geothermal.wells then
-		for unit,entry in pairs(storage.geothermal.wells) do
-			if entry.entity.valid then
-				--entry.entity.temperature = 625
-				local surface = entry.entity.surface
-				local x = entry.entity.position.x
-				local y = entry.entity.position.y
-				local tileN = isTileType(surface, x, y-2, {"lava", "geothermal", "molten"})
-				local tileE = isTileType(surface, x+2, y, {"lava", "geothermal", "molten"})
-				local tileS = isTileType(surface, x, y+2, {"lava", "geothermal", "molten"})
-				local tileW = isTileType(surface, x-2, y, {"lava", "geothermal", "molten"})
-				local tiername = nil
-				if tileN or tileE or tileS or tileW then
-					tiername = "hot" --lava is hot
-				else
-					local filter = {}
-					local tiers = {}
-					local tiernames = {}
-					for i,type in ipairs(PATCH_TEMPERATURES) do
-						local name = "geothermal-patch-" .. type
-						table.insert(filter, name)
-						tiers[name] = i
-						tiernames[i] = name
+script.on_nth_tick(60, function(data)
+	if storage.geothermal then
+		if storage.geothermal.wells then
+			for unit,entry in pairs(storage.geothermal.wells) do
+				if entry.entity.valid then
+					--entry.entity.temperature = 625
+					local surface = entry.entity.surface
+					local x = entry.entity.position.x
+					local y = entry.entity.position.y
+					local tileN = isTileType(surface, x, y-2, {"lava", "geothermal", "molten"})
+					local tileE = isTileType(surface, x+2, y, {"lava", "geothermal", "molten"})
+					local tileS = isTileType(surface, x, y+2, {"lava", "geothermal", "molten"})
+					local tileW = isTileType(surface, x-2, y, {"lava", "geothermal", "molten"})
+					local tiername = nil
+					if tileN or tileE or tileS or tileW then
+						tiername = "hot" --lava is hot
+					else
+						local filter = {}
+						local tiers = {}
+						local tiernames = {}
+						for i,type in ipairs(PATCH_TEMPERATURES) do
+							local name = "geothermal-patch-" .. type
+							table.insert(filter, name)
+							tiers[name] = i
+							tiernames[i] = name
+						end
+						local patches = surface.find_entities_filtered{area = {{x-2, y-2}, {x+2, y+2}}, name = filter}
+						for _,patch in pairs(patches) do
+							tier = math.max(tier, tiers[patch.name])
+						end
+						tiername = tiernames[tier]
 					end
-					local patches = surface.find_entities_filtered{area = {{x-2, y-2}, {x+2, y+2}}, name = filter}
-					for _,patch in pairs(patches) do
-						tier = math.max(tier, tiers[patch.name])
-					end
-					tiername = tiernames[tier]
+					local active = tiername ~= nil
+					entry.entity.set_heat_setting({temperature = active and PATCH_TEMPERATURES[tiername] or 15, mode = active and "at-least" or "at-most"})
 				end
-				local active = tiername ~= nil
-				entry.entity.set_heat_setting({temperature = active and PATCH_TEMPERATURES[tiername] or 15, mode = active and "add" or "at-most"})
+			end
+		end
+		if storage.geothermal.exchangers then
+			for unit,entry in pairs(storage.geothermal.exchangers) do
+				if entry.entity.valid and entry.input.valid then
+					--entry.entity.temperature = 625
+					local surface = entry.entity.surface
+					local input = entry.input.get_inventory(defines.inventory.crafter_output)
+					local count = input.get_item_count()
+					if count > 0 then
+						--entry.entity.energy = entry.entity.energy + 1000
+						entry.entity.temperature = math.min(entry.entity.temperature+1*count, 625)
+					end
+					input.clear()
+				end
 			end
 		end
 	end

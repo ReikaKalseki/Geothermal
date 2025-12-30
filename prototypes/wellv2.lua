@@ -23,19 +23,14 @@ data:extend({
 		energy_required = 30,
 		enabled = false,
 		ingredients = {
-			{type = "item", name = "steel-plate", amount = 100},
-			{type = "item", name = "copper-plate", amount = 200},
+			{type = "item", name = "heat-pipe", amount = 100},
 			{type = "item", name = "refined-concrete", amount = 200},
-			{type = "item", name = "pump", amount = 20},
-			{type = "item", name = "advanced-circuit", amount = 10},
+			{type = "item", name = "tungsten-plate", amount = 100},
+			{type = "item", name = "processing-unit", amount = 10},
 		},
 		results = {{type="item", name="geothermal-heat-well", amount=1}}
 	  },
 })
-
-if settings.startup["geothermal-uses-tungsten"].value then
-	table.insert(data.raw.recipe["geothermal-heat-well"].ingredients, {type = "item", name = "tungsten-plate", amount = 10})
-end
 
 addDerivative("heat-interface", "heat-interface",
   {
