@@ -14,7 +14,7 @@ data:extend(
     {
       {
         type = "unlock-recipe",
-        recipe = "geothermal-exchanger"
+        recipe = "geothermal-exchanger-basic"
       },
     },
     unit =
@@ -34,7 +34,38 @@ data:extend(
   },
   {
     type = "technology",
-    name = "geothermal-2",
+    name = "geothermal-hot-exchanger",
+    prerequisites =
+    {
+		"geothermal",
+		"processing-unit",
+    },
+    icon = "__Geothermal__/graphics/technology/geothermal.png",
+    effects =
+    {
+      {
+        type = "unlock-recipe",
+        recipe = "geothermal-exchanger-hot"
+      }
+    },
+    unit =
+    {
+      count = 2000,
+      ingredients =
+      {
+        {"automation-science-pack", 1},
+        {"logistic-science-pack", 1},
+        {"chemical-science-pack", 1},
+        {"production-science-pack", 1},
+      },
+      time = 60
+    },
+    order = "[steam]-2",
+	icon_size = 128,
+  },
+  {
+    type = "technology",
+    name = "geothermal-heat-well",
     prerequisites =
     {
 		"geothermal",
@@ -74,4 +105,6 @@ data:extend(
 if settings.startup["geothermal-uses-tungsten"].value then
 	table.insert(data.raw.technology["geothermal"].unit.ingredients, {"space-science-pack", 1})
 	table.insert(data.raw.technology["geothermal"].unit.ingredients, {"metallurgic-science-pack", 1})
+	table.insert(data.raw.technology["geothermal-hot-exchanger"].unit.ingredients, {"space-science-pack", 1})
+	table.insert(data.raw.technology["geothermal-hot-exchanger"].unit.ingredients, {"metallurgic-science-pack", 1})
 end

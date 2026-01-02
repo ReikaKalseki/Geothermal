@@ -50,7 +50,7 @@ end
 
 local function onEntityRemoved(event)
 	if event.entity and event.entity.valid then
-		if event.entity.name == "geothermal-exchanger" then
+		if string.find(event.entity.name, "geothermal-exchanger", 1, true) then
 			if storage.geothermal and storage.geothermal.exchangers then
 				local entry = storage.geothermal.exchangers[event.entity.unit_number]
 				if entry and entry.entity.valid then
@@ -108,11 +108,11 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		assembler.destructible = false
 		assembler.minable_flag = false
 		assembler.rotatable = false
-		addGlobalKV({"exchangers", entity.unit_number}, {entity=entity, input=assembler})
+		addGlobalKV({"exchangers", entity.unit_number}, {entity=entity, input=assembler, hot=string.find(entity.name, "hot", 1, true)})
 	end
 end)
 
-script.on_nth_tick(60, function(data)
+script.on_nth_tick(10, function(data)
 	if storage.geothermal then
 		if storage.geothermal.wells then
 			for unit,entry in pairs(storage.geothermal.wells) do
@@ -158,7 +158,9 @@ script.on_nth_tick(60, function(data)
 					local count = input.get_item_count()
 					if count > 0 then
 						--entry.entity.energy = entry.entity.energy + 1000
-						entry.entity.temperature = math.min(entry.entity.temperature+1*count, 625)
+						local qualityFactor = 1+0.3*entry.entity.quality.level --basic = 1x, improved 1.3x, exceptional 1.6x, etc up to masterwork 2.5x (this matches boiler rate)
+						entry.entity.temperature = math.min(entry.entity.temperature+1.5*qualityFactor*count, entry.hot and 625 or 325)
+						--game.print("setting temp to " .. entry.entity.temperature)
 					end
 					input.clear()
 				end
