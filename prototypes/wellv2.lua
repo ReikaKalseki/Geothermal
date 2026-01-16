@@ -1,4 +1,4 @@
-require "geobase"
+require "__DragonIndustries__.registration"
 
 local item_sounds = require("__base__.prototypes.item_sounds")
 --require ("prototypes.entity.entity-util") -- for full resist
@@ -7,7 +7,7 @@ data:extend({
 	  {
 		type = "item",
 		name = "geothermal-heat-well",
-		icon  = "__Geothermal__/graphics/icons/heat-pipe.png",
+		icon  = "__base__/graphics/icons/heat-pipe.png",
 		subgroup = "energy",
 		order = "c[geothermal-well]",
 		inventory_move_sound = item_sounds.steam_inventory_move,
@@ -35,7 +35,7 @@ data:extend({
 addDerivative("heat-interface", "heat-interface",
   {
     name = "geothermal-heat-well",
-    icon = "__Geothermal__/graphics/icons/heat-pipe.png",
+    icon = "__base__/graphics/icons/heat-pipe.png",
     flags = {"placeable-neutral", "placeable-player", "player-creation"},
     minable = {mining_time = 0.5, result = "geothermal-heat-well"},
     max_health = 600,
@@ -53,7 +53,7 @@ addDerivative("heat-interface", "heat-interface",
     {
       {
         type = "fire",
-        percent = 90
+        percent = 100
       }
     },
 	created_effect = {
@@ -69,9 +69,9 @@ addDerivative("heat-interface", "heat-interface",
     heat_buffer =
     {
       max_temperature = 625, --for bob mk2 turbine @ 615C
-      specific_heat = "20MJ",
+      specific_heat = "2MJ",
       max_transfer = "30GW",
-      default_temperature = 15,
+      default_temperature = 0,
       min_working_temperature = 500,
       connections =
       {

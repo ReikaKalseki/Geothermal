@@ -1,5 +1,3 @@
-require "config"
-
 local amount = 120--250
 
 local function createGeothermalFiltering(input)
@@ -57,7 +55,7 @@ data:extend(
   {
     type = "recipe",
     name = "geothermal-filter",
-    enabled = "false",
+    enabled = false,
     energy_required = 90,
     ingredients =
     {

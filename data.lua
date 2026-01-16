@@ -6,7 +6,7 @@ require("prototypes.fluid")
 
 --require("prototypes.turbine")
 --require("prototypes.well")
---require("prototypes.filtering")
+require("prototypes.filtering")
 --require("prototypes.insulated-wagon")
 
 require "prototypes.wellv2"

@@ -1,6 +1,6 @@
 local item_sounds = require("__base__.prototypes.item_sounds")
 
-require "geobase"
+require "__DragonIndustries__.registration"
 
 local input = {
 	type = "furnace",
@@ -14,14 +14,7 @@ local input = {
 	destructible = false,
     selectable_in_game = false,
 	max_health = 20,
-	crafting_speed = 1,--[[
-    energy_source =
-    {
-      type = "void",
-	  render_no_power_icon = false,
-	  render_no_network_icon = false,
-    },
-    energy_usage = "1W",--]]
+	crafting_speed = 1,
     energy_source =
     {
       type = "electric",
@@ -78,23 +71,21 @@ data:extend({
 				{type = "item", name = "stone", amount = 2},
 			},
 		},
-		--[[ for later
 		{
 			type = "recipe",
 			name = "water-geothermal-exchange",
 			category = "geothermal-exchanger",
 			icon = "__core__/graphics/empty.png",
-			enabled = "true",
+			enabled = true,
 			hidden = true,
 			energy_required = 0.2,
 			ingredients = {
-				{type = "fluid", name = "geothermal-water", amount = 40},
+				{type = "fluid", name = "geothermal-water", amount = 100},
 			},
 			results = {
 				{type = "item", name = "stone", amount = 1},
 			},
 		},
-		--]]
 	  {
 		type = "recipe",
 		name = "geothermal-exchanger-basic",
@@ -130,11 +121,12 @@ end
 
 function createGeothermalBoiler(name, hot)
 local temp = hot and 625 or 325, --bob mk2 turbine @ 615, bob mk2 steam engine @ 315
+
 data:extend({
 	  {
 		type = "item",
 		name = "geothermal-exchanger-" .. name,
-		icon = "__Geothermal__/graphics/icons/heat-exchanger.png", --TODO: use icons layers
+		icon = hot and "__Geothermal__/graphics/icons/heat-exchanger-2.png" or "__Geothermal__/graphics/icons/heat-exchanger.png",
 		subgroup = "energy",
 		order = "c[geothermal-well]",
 		inventory_move_sound = item_sounds.steam_inventory_move,
@@ -143,7 +135,7 @@ data:extend({
 		place_result = "geothermal-exchanger-" .. name,
 		stack_size = 10,
 		weight = 250*kg
-	  },
+	  }
 })
 
 	addDerivative("boiler", "heat-exchanger",

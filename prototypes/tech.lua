@@ -99,6 +99,40 @@ data:extend(
     },
     order = "[steam]-2",
 	icon_size = 128,
+  },
+  {
+    type = "technology",
+    name = "geothermal-heat-well-efficiency",
+    prerequisites =
+    {
+		"geothermal-heat-well",
+		"cryogenic-science-pack",
+    },
+    icon = "__Geothermal__/graphics/technology/geothermal.png",
+    effects =
+    {
+      {
+        type = "nothing",
+        effect_description = {"technology-description.geothermal-heat-well-efficiency-effect"}
+      }
+    },
+    unit =
+    {
+      count = 5000,
+      ingredients =
+      {
+        {"automation-science-pack", 1},
+        {"logistic-science-pack", 1},
+        {"chemical-science-pack", 1},
+        {"production-science-pack", 1},
+        {"space-science-pack", 1},
+        {"metallurgic-science-pack", 1},
+        {"cryogenic-science-pack", 1},
+      },
+      time = 60
+    },
+    order = "[steam]-2",
+	icon_size = 128,
   }
 })
 

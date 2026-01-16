@@ -1,26 +1,6 @@
 require "constants"
-
---TODO move this to DI
-function getOppositeDirection(dir) --direction is a number from 0 to 15
-	return (dir+8)%16
-end
-
---TODO move this to DI
-local function isTileType(surface, x, y, name)
-	if not surface then return false end
-	if not surface.valid then return false end
-	local tile = surface.get_tile(x, y)
-	if not tile.valid then return false end
-	if type(name) == "table" then
-		for _,seek in pairs(name) do
-			if string.find(tile.name, seek, 1, true) then
-				return true
-			end
-		end
-	else
-		return string.find(tile.name, name, 1, true)
-	end
-end
+require "__DragonIndustries__.mathhelper"
+require "__DragonIndustries__.tiles"
 
 --TODO move this to DI
 local function addGlobalKV(k, v)
@@ -128,11 +108,11 @@ script.on_nth_tick(10, function(data)
 					local tiername = nil
 					if tileN or tileE or tileS or tileW then
 						tiername = "hot" --lava is hot
-					else
+					else--[[
 						local filter = {}
 						local tiers = {}
 						local tiernames = {}
-						for i,type in ipairs(PATCH_TEMPERATURES) do
+						for label,temp in pairs(PATCH_TEMPERATURES) do
 							local name = "geothermal-patch-" .. type
 							table.insert(filter, name)
 							tiers[name] = i
@@ -142,10 +122,17 @@ script.on_nth_tick(10, function(data)
 						for _,patch in pairs(patches) do
 							tier = math.max(tier, tiers[patch.name])
 						end
-						tiername = tiernames[tier]
+						tiername = tiernames[tier]--]]
 					end
 					local active = tiername ~= nil
-					entry.entity.set_heat_setting({temperature = active and PATCH_TEMPERATURES[tiername] or 15, mode = active and "at-least" or "at-most"})
+					if active then
+						local factor = entry.entity.force.technologies["geothermal-heat-well-efficiency"].researched and 0.36 or 0.24
+						local dT = (PATCH_TEMPERATURES[tiername].temperature-entry.entity.temperature)*factor/60
+						--game.print(entry.entity.temperature .. " + " .. dT)
+						entry.entity.set_heat_setting({temperature = dT, mode = "add"})
+					else
+						entry.entity.set_heat_setting({temperature = -10, mode = "remove"})
+					end
 				end
 			end
 		end
