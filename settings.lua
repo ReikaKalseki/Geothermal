@@ -7,6 +7,13 @@ data:extend({
             order = "r",
 		},
         {
+            type = "bool-setting",
+            name = "geothermal-t2-uses-tungsten",
+            setting_type = "startup",
+            default_value = false,
+            order = "r",
+		},
+        {
             type = "double-setting",
             name = "geothermal-power-factor",
             setting_type = "startup",

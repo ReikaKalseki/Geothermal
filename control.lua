@@ -81,9 +81,10 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		addGlobalKV({"extractors", entity.unit_number}, {entity=entity, logic=assembler})
 	elseif effect_id == "on-create-geothermal-well" then
 		entity.operable = false
-		local well = entity.surface.create_entity{name="geothermal-heat-well", position = {entity.position.x, entity.position.y}, force=entity.force, direction=entity.direction}
+		local well = entity.surface.create_entity{name="geothermal-heat-well", position = {entity.position.x, entity.position.y}, force=entity.force, direction=entity.direction, quality = entity.quality}
 		local reactor = entity.surface.create_entity{name="geothermal-heat-well-graphics", position = {entity.position.x, entity.position.y}, force=entity.force, direction=entity.direction}
 		entity.destroy()
+		well.update_connections()
 		reactor.destructible = false
 		reactor.minable_flag = false
 		reactor.operable = false
@@ -133,9 +134,9 @@ script.on_nth_tick(10, function(data)
 						tiername = "hot" --lava is hot
 					else
 						local tier = -1
-						local res = surface.find_entities_filtered{area = {{x-2, y-2}, {x+2, y+2}}, type = "resource"}
+						local res = surface.find_entities_filtered{area = {{x-0.2, y-0.2}, {x+0.2, y+0.2}}, type = "resource"}
 						for _,item in pairs(res) do
-							if string.find(item.name, "geothermal-patch", 1, true) then
+							if string.find(item.name, "geothermal-patch", 1, true) and item.position.x == entry.entity.position.x and item.position.y == entry.entity.position.y then
 								local tierat = -1
 								for i,name in ipairs(TEMPERATURE_INDICES) do
 									if string.find(item.name, name, 1, true) then
@@ -156,7 +157,7 @@ script.on_nth_tick(10, function(data)
 						--game.print(entry.entity.temperature .. " + " .. dT)
 						entry.entity.set_heat_setting({temperature = dT, mode = "add"})
 					else
-						entry.entity.set_heat_setting({temperature = -10, mode = "remove"})
+						entry.entity.set_heat_setting({temperature = entry.entity.temperature-5, mode = "at-most"})
 					end
 					if entry.animation and entry.animation.valid then
 						if active then

@@ -26,6 +26,7 @@ data:extend({
 			{type = "item", name = "heat-pipe", amount = 100},
 			{type = "item", name = "refined-concrete", amount = 200},
 			{type = "item", name = "tungsten-plate", amount = 100},
+			{type = "item", name = "electric-engine-unit", amount = 20},
 			{type = "item", name = "processing-unit", amount = 10},
 		},
 		results = {{type="item", name="geothermal-heat-well", amount=1}}
@@ -152,6 +153,7 @@ addDerivative("heat-interface", "geothermal-heat-well",
   {
     name = "geothermal-heat-well-preview",
     localised_name = {"entity-name.geothermal-heat-well"},
+    collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
 	created_effect = {
 		type = "direct",
 		action_delivery = {

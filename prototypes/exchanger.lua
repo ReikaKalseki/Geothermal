@@ -116,6 +116,9 @@ data:extend({
 
 if settings.startup["geothermal-uses-tungsten"].value then
 	table.insert(data.raw.recipe["geothermal-exchanger-basic"].ingredients, {type = "item", name = "tungsten-plate", amount = 10})
+end
+
+if settings.startup["geothermal-t2-uses-tungsten"].value then
 	table.insert(data.raw.recipe["geothermal-exchanger-hot"].ingredients, {type = "item", name = "tungsten-plate", amount = 25})
 end
 

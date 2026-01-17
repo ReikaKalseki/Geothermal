@@ -1,3 +1,5 @@
+require "constants"
+
 data:extend(
 {
   {
@@ -171,8 +173,11 @@ data:extend(
 if settings.startup["geothermal-uses-tungsten"].value then
 	table.insert(data.raw.technology["geothermal"].unit.ingredients, {"space-science-pack", 1})
 	table.insert(data.raw.technology["geothermal"].unit.ingredients, {"metallurgic-science-pack", 1})
-	table.insert(data.raw.technology["geothermal-hot-exchanger"].unit.ingredients, {"space-science-pack", 1})
-	table.insert(data.raw.technology["geothermal-hot-exchanger"].unit.ingredients, {"metallurgic-science-pack", 1})
 	table.insert(data.raw.technology["geothermal-filtering"].unit.ingredients, {"space-science-pack", 1})
 	table.insert(data.raw.technology["geothermal-filtering"].unit.ingredients, {"metallurgic-science-pack", 1})
+end
+
+if settings.startup["geothermal-t2-uses-tungsten"].value then
+	table.insert(data.raw.technology["geothermal-hot-exchanger"].unit.ingredients, {"space-science-pack", 1})
+	table.insert(data.raw.technology["geothermal-hot-exchanger"].unit.ingredients, {"metallurgic-science-pack", 1})
 end
