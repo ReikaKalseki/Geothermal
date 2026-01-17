@@ -109,39 +109,105 @@ addDerivative("heat-interface", "heat-interface",
         }
       },
 
-      heat_picture = apply_heat_pipe_glow
-      {
-        filename = "__base__/graphics/entity/nuclear-reactor/reactor-heated.png",
-        width = 216,
-        height = 256,
-        scale = 0.5,
-        shift = util.by_pixel(3, -6.5)
-      },
+      heat_picture = "nil"
     },
     picture =
     {
-      filename = "__base__/graphics/icons/heat-interface.png",
-      height = 64,
-      width = 64,
-      scale = 2.5,
-      flags = {"no-crop"}
+      layers = {
+        {
+          filename = "__base__/graphics/icons/heat-interface.png",
+          width = 32,
+          height = 32,
+        }
+      }
     },
+  }
+)
+
+addDerivative("reactor", "nuclear-reactor",
+  {
+    name = "geothermal-heat-well-graphics",
+    icon = "__core__/graphics/empty.png",
+    minable = "nil",
+    max_health = 600,
+    destructible = false,
+    collision_mask = {layers={}},
+    selectable_in_game = false,
+    energy_source = {
+      ["*"] = "nil",
+      type = "electric",
+      usage_priority = "secondary-input"
+    },
+    light = "nil",
+    heat_buffer =
+    {
+      max_temperature = 999,
+      specific_heat = "1kJ",
+      max_transfer = "1kW",
+      default_temperature = 0,
+      min_working_temperature = 500,
+      minimum_glow_temperature = 500,
+      connections = {},
+      heat_picture = apply_heat_pipe_glow
+      {
+        filename = "__Geothermal__/graphics/entity/wellv2/center-glow.png",
+          width = 202,
+          height = 168,
+          scale = 0.5,
+          shift = util.by_pixel(0, 12*0),
+      },
+    },
+    working_light_picture = {
+      layers = {
+        {
+          filename = "__Geothermal__/graphics/entity/wellv2/fan.png",
+          width = 210,
+          height = 280,
+          scale = 0.5625,
+          flags = {"no-crop"},
+          animation_speed = 0.5,
+          line_length = 10,
+          frame_count = 60,
+          shift = util.by_pixel(22, 28),
+        }
+        }
+      },
+    picture =
+    {
+      layers = {
+        {
+          filename = "__Geothermal__/graphics/entity/wellv2/center.png",
+          width = 202,
+          height = 168,
+          scale = 0.5,
+          flags = {"no-crop"},
+          shift = util.by_pixel(0, 4),
+        },
+      }
+    },
+    working_sound = "nil",--[[
+    {
+      sound = sound_variations("__base__/sound/nuclear-reactor", 2, 0.55, volume_multiplier("main-menu", 0.8)),
+      max_sounds_per_prototype = 3,
+      fade_in_ticks = 4,
+      fade_out_ticks = 20
+    },--]]
 
     lower_layer_picture =
     {
-      filename = "__base__/graphics/entity/nuclear-reactor/reactor-pipes.png",
+      filename = "__Geothermal__/graphics/entity/wellv2/pipes.png",
       width = 320,
-      height = 316,
+      height = 320,
       scale = 0.5,
-      shift = util.by_pixel(-1, -5)
+      shift = {0, 0},
     },
     heat_lower_layer_picture = apply_heat_pipe_glow
     {
-      filename = "__base__/graphics/entity/nuclear-reactor/reactor-pipes-heated.png",
+      filename = "__Geothermal__/graphics/entity/wellv2/pipes-heated.png",
       width = 320,
-      height = 316,
+      height = 320,
       scale = 0.5,
-      shift = util.by_pixel(-0.5, -4.5)
+      shift = {0, 0},
     },
     connection_patches_connected =
     {

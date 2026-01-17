@@ -40,6 +40,14 @@ local function onEntityRemoved(event)
 					storage.geothermal.exchangers[event.entity.unit_number] = nil
 				end
 			end
+		elseif string.find(event.entity.name, "geothermal-heat-well", 1, true) then
+			if storage.geothermal and storage.geothermal.wells then
+				local entry = storage.geothermal.wells[event.entity.unit_number]
+				if entry and entry.entity.valid and entry.graphics and entry.graphics.valid then
+					entry.graphics.destroy()
+					storage.geothermal.wells[event.entity.unit_number] = nil
+				end
+			end
 		end
 	end
 end
@@ -70,7 +78,12 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		addGlobalKV({"extractors", entity.unit_number}, {entity=entity, logic=assembler})
 	elseif effect_id == "on-create-geothermal-well" then
 		entity.operable = false
-		addGlobalKV({"wells", entity.unit_number}, {entity=entity})
+		local reactor = entity.surface.create_entity{name="geothermal-heat-well-graphics", position = {entity.position.x, entity.position.y}, force=entity.force, direction=entity.direction}
+		reactor.destructible = false
+		reactor.minable_flag = false
+		reactor.operable = false
+		reactor.rotatable = false
+		addGlobalKV({"wells", entity.unit_number}, {entity=entity, graphics=reactor})
 	elseif effect_id == "on-create-geothermal-exchanger" then
 		local pos = entity.position
 		if entity.direction == defines.direction.north then
@@ -135,6 +148,7 @@ script.on_nth_tick(10, function(data)
 					else
 						entry.entity.set_heat_setting({temperature = -10, mode = "remove"})
 					end
+					if entry.graphics and entry.graphics.valid then entry.graphics.temperature = entry.entity.temperature end
 				end
 			end
 		end
