@@ -3,6 +3,9 @@ CHUNK_SIZE = 32
 PATCH_RATE_FACTOR = 0.25
 NONVOLCANIC_FACTOR = 1/96
 
+HEAT_WELL_EFFICIENCY_TECH_AMOUNT = 0.5
+HEAT_WELL_QUALITY_FACTOR = 0.2 --1x at base quality, 2x at masterwork
+
 PATCH_TEMPERATURES = {
 	["cold"] = {temperature = 110, rate = 1, weight = 15},
 	["cool"] = {temperature = 180, rate = 2, weight = 40},
@@ -10,10 +13,13 @@ PATCH_TEMPERATURES = {
 	["hot"] = {temperature = 625, rate = 10, weight = 25} --for bob mk2 turbine @ 615C
 }
 
+TEMPERATURE_INDICES = {}
+
 local WEIGHT_TABLE = {}
 
 for temp,params in pairs(PATCH_TEMPERATURES) do
 	WEIGHT_TABLE[temp] = {params.weight, temp}
+	table.insert(TEMPERATURE_INDICES, temp)
 end
 
 function getRandomTemperature(randFunc)
@@ -38,6 +44,10 @@ end
 
 function getRandomColor(randFunc)
 	return getWeightedRandom(COLOR_WEIGHT_TABLE, randFunc)
+end
+
+function getHeatWellEfficiency(quality)
+	return (1+HEAT_WELL_QUALITY_FACTOR*quality.level)
 end
 
 function initModifiers(isInit)

@@ -145,7 +145,7 @@ data:extend(
     {
       {
         type = "nothing",
-        effect_description = {"technology-description.geothermal-heat-well-efficiency-effect"}
+        effect_description = {"custom-tooltips.geothermal-heat-well-efficiency-effect", tostring(HEAT_WELL_EFFICIENCY_TECH_AMOUNT*100)}
       }
     },
     unit =

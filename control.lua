@@ -43,10 +43,13 @@ local function onEntityRemoved(event)
 		elseif string.find(event.entity.name, "geothermal-heat-well", 1, true) then
 			if storage.geothermal and storage.geothermal.wells then
 				local entry = storage.geothermal.wells[event.entity.unit_number]
-				if entry and entry.entity.valid and entry.graphics and entry.graphics.valid then
+				if entry and entry.graphics and entry.graphics.valid then
 					entry.graphics.destroy()
-					storage.geothermal.wells[event.entity.unit_number] = nil
 				end
+				if entry and entry.animation and entry.animation.valid then
+					entry.animation.destroy()
+				end
+				storage.geothermal.wells[event.entity.unit_number] = nil
 			end
 		end
 	end
@@ -78,12 +81,17 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		addGlobalKV({"extractors", entity.unit_number}, {entity=entity, logic=assembler})
 	elseif effect_id == "on-create-geothermal-well" then
 		entity.operable = false
+		local well = entity.surface.create_entity{name="geothermal-heat-well", position = {entity.position.x, entity.position.y}, force=entity.force, direction=entity.direction}
 		local reactor = entity.surface.create_entity{name="geothermal-heat-well-graphics", position = {entity.position.x, entity.position.y}, force=entity.force, direction=entity.direction}
+		entity.destroy()
 		reactor.destructible = false
 		reactor.minable_flag = false
 		reactor.operable = false
 		reactor.rotatable = false
-		addGlobalKV({"wells", entity.unit_number}, {entity=entity, graphics=reactor})
+
+		local anim = rendering.draw_animation{animation="heat-well-animation", render_layer="object", animation_speed=0, target=well, surface=well.surface, visible=true, only_in_alt_mode=false}
+
+		addGlobalKV({"wells", well.unit_number}, {entity=well, graphics=reactor, animation = anim})
 	elseif effect_id == "on-create-geothermal-exchanger" then
 		local pos = entity.position
 		if entity.direction == defines.direction.north then
@@ -123,32 +131,54 @@ script.on_nth_tick(10, function(data)
 					local tiername = nil
 					if tileN or tileE or tileS or tileW then
 						tiername = "hot" --lava is hot
-					else--[[
-						local filter = {}
-						local tiers = {}
-						local tiernames = {}
-						for label,temp in pairs(PATCH_TEMPERATURES) do
-							local name = "geothermal-patch-" .. type
-							table.insert(filter, name)
-							tiers[name] = i
-							tiernames[i] = name
+					else
+						local tier = -1
+						local res = surface.find_entities_filtered{area = {{x-2, y-2}, {x+2, y+2}}, type = "resource"}
+						for _,item in pairs(res) do
+							if string.find(item.name, "geothermal-patch", 1, true) then
+								local tierat = -1
+								for i,name in ipairs(TEMPERATURE_INDICES) do
+									if string.find(item.name, name, 1, true) then
+										tierat = i
+									end
+								end
+								tier = math.max(tier, tierat)
+							end
 						end
-						local patches = surface.find_entities_filtered{area = {{x-2, y-2}, {x+2, y+2}}, name = filter}
-						for _,patch in pairs(patches) do
-							tier = math.max(tier, tiers[patch.name])
-						end
-						tiername = tiernames[tier]--]]
+						tiername = tier >= 0 and TEMPERATURE_INDICES[tier] or nil
 					end
-					local active = tiername ~= nil
+					local active = tiername ~= nil and entry.graphics and entry.graphics.valid and entry.graphics.energy > 0
 					if active then
-						local factor = entry.entity.force.technologies["geothermal-heat-well-efficiency"].researched and 0.36 or 0.24
+						local factor = 0.24
+						if entry.entity.force.technologies["geothermal-heat-well-efficiency"].researched then factor = factor*(1+HEAT_WELL_EFFICIENCY_TECH_AMOUNT) end
+						factor = factor*getHeatWellEfficiency(entry.entity.quality)
 						local dT = (PATCH_TEMPERATURES[tiername].temperature-entry.entity.temperature)*factor/60
 						--game.print(entry.entity.temperature .. " + " .. dT)
 						entry.entity.set_heat_setting({temperature = dT, mode = "add"})
 					else
 						entry.entity.set_heat_setting({temperature = -10, mode = "remove"})
 					end
-					if entry.graphics and entry.graphics.valid then entry.graphics.temperature = entry.entity.temperature end
+					if entry.animation and entry.animation.valid then
+						if active then
+						local animTemp = math.min(600, math.max(0, entry.entity.temperature-20))
+						local round = math.floor(animTemp / 50 + 0.5)*0.5
+						entry.animation.animation_speed = 0.25*round
+						--game.print(entry.entity.temperature .. " > " .. animTemp .. " > " .. round .. " > " .. entry.animation.animation_speed)
+						else
+							entry.animation.animation_speed = 0
+						end
+					end
+					if entry.graphics and entry.graphics.valid then
+						entry.graphics.temperature = entry.entity.temperature
+						--[[
+						local inv = entry.graphics.get_inventory(defines.inventory.fuel)
+						if active then
+							inv.insert("uranium-fuel-cell")
+						else
+							inv.clear()
+						end
+						--]]
+					end
 				end
 			end
 		end
