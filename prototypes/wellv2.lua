@@ -7,7 +7,7 @@ data:extend({
 	  {
 		type = "item",
 		name = "geothermal-heat-well",
-		icon  = "__base__/graphics/icons/heat-pipe.png",
+    icon = "__Geothermal__/graphics/icons/heat-interface.png",
 		subgroup = "energy",
 		order = "c[geothermal-well]",
 		inventory_move_sound = item_sounds.steam_inventory_move,
@@ -35,7 +35,7 @@ data:extend({
 addDerivative("heat-interface", "heat-interface",
   {
     name = "geothermal-heat-well",
-    icon = "__base__/graphics/icons/heat-pipe.png",
+    icon = "__Geothermal__/graphics/icons/heat-interface.png",
     flags = {"placeable-neutral", "placeable-player", "player-creation"},
     minable = {mining_time = 0.5, result = "geothermal-heat-well"},
     max_health = 600,
@@ -68,11 +68,21 @@ addDerivative("heat-interface", "heat-interface",
 	},
     heat_buffer =
     {
-      max_temperature = 625, --for bob mk2 turbine @ 615C
+      max_temperature = 1000,
       specific_heat = "2MJ",
       max_transfer = "30GW",
       default_temperature = 0,
       min_working_temperature = 500,
+      minimum_glow_temperature = 500,
+      
+      heat_lower_layer_picture = apply_heat_pipe_glow
+      {
+        filename = "__Geothermal__/graphics/entity/wellv2/pipes-heated.png",
+        width = 320,
+        height = 320,
+        scale = 0.5,
+        shift = {0, 0},
+      },
       connections =
       {
         {
@@ -114,11 +124,21 @@ addDerivative("heat-interface", "heat-interface",
     picture =
     {
       layers = {
+      {
+        filename = "__Geothermal__/graphics/entity/wellv2/pipes.png",
+        width = 320,
+        height = 320,
+        scale = 0.5,
+        shift = {0, 0},
+      },
         {
-          filename = "__base__/graphics/icons/heat-interface.png",
-          width = 32,
-          height = 32,
-        }
+          filename = "__Geothermal__/graphics/entity/wellv2/center.png",
+          width = 202,
+          height = 168,
+          scale = 0.5,
+          flags = {"no-crop"},
+          shift = util.by_pixel(0, 4),
+        },
       }
     },
   }
@@ -136,17 +156,18 @@ addDerivative("reactor", "nuclear-reactor",
     energy_source = {
       ["*"] = "nil",
       type = "electric",
-      usage_priority = "secondary-input"
+      usage_priority = "secondary-input",
+      drain = "50kW",
     },
     light = "nil",
     heat_buffer =
     {
-      max_temperature = 999,
-      specific_heat = "1kJ",
+      max_temperature = 1000,
+      specific_heat = "1MJ",
       max_transfer = "1kW",
       default_temperature = 0,
       min_working_temperature = 500,
-      minimum_glow_temperature = 500,
+      minimum_glow_temperature = 400,
       connections = {},
       heat_picture = apply_heat_pipe_glow
       {
@@ -154,7 +175,9 @@ addDerivative("reactor", "nuclear-reactor",
           width = 202,
           height = 168,
           scale = 0.5,
-          shift = util.by_pixel(0, 12*0),
+          shift = util.by_pixel(0, 5),
+          --blend_mode = "additive",
+          draw_as_glow = true,
       },
     },
     working_light_picture = {
@@ -168,7 +191,7 @@ addDerivative("reactor", "nuclear-reactor",
           animation_speed = 0.5,
           line_length = 10,
           frame_count = 60,
-          shift = util.by_pixel(22, 28),
+          shift = util.by_pixel(23, 29),
         }
         }
       },
@@ -176,12 +199,9 @@ addDerivative("reactor", "nuclear-reactor",
     {
       layers = {
         {
-          filename = "__Geothermal__/graphics/entity/wellv2/center.png",
-          width = 202,
-          height = 168,
-          scale = 0.5,
-          flags = {"no-crop"},
-          shift = util.by_pixel(0, 4),
+          filename = "__core__/graphics/empty.png",
+          width = 1,
+          height = 1,
         },
       }
     },
@@ -193,14 +213,7 @@ addDerivative("reactor", "nuclear-reactor",
       fade_out_ticks = 20
     },--]]
 
-    lower_layer_picture =
-    {
-      filename = "__Geothermal__/graphics/entity/wellv2/pipes.png",
-      width = 320,
-      height = 320,
-      scale = 0.5,
-      shift = {0, 0},
-    },
+    lower_layer_picture = "nil",
     heat_lower_layer_picture = apply_heat_pipe_glow
     {
       filename = "__Geothermal__/graphics/entity/wellv2/pipes-heated.png",
@@ -208,55 +221,6 @@ addDerivative("reactor", "nuclear-reactor",
       height = 320,
       scale = 0.5,
       shift = {0, 0},
-    },
-    connection_patches_connected =
-    {
-      sheet =
-      {
-        filename = "__base__/graphics/entity/nuclear-reactor/reactor-connect-patches.png",
-        width = 64,
-        height = 64,
-        variation_count = 12,
-        scale = 0.5
-      }
-    },
-
-    connection_patches_disconnected =
-    {
-      sheet =
-      {
-        filename = "__base__/graphics/entity/nuclear-reactor/reactor-connect-patches.png",
-        width = 64,
-        height = 64,
-        variation_count = 12,
-        y = 64,
-        scale = 0.5
-      }
-    },
-
-    heat_connection_patches_connected =
-    {
-      sheet = apply_heat_pipe_glow
-      {
-        filename = "__base__/graphics/entity/nuclear-reactor/reactor-connect-patches-heated.png",
-        width = 64,
-        height = 64,
-        variation_count = 12,
-        scale = 0.5
-      }
-    },
-
-    heat_connection_patches_disconnected =
-    {
-      sheet = apply_heat_pipe_glow
-      {
-        filename = "__base__/graphics/entity/nuclear-reactor/reactor-connect-patches-heated.png",
-        width = 64,
-        height = 64,
-        variation_count = 12,
-        y = 64,
-        scale = 0.5
-      }
     },
   }
 )

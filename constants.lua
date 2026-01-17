@@ -7,7 +7,7 @@ PATCH_TEMPERATURES = {
 	["cold"] = {temperature = 110, rate = 1, weight = 15},
 	["cool"] = {temperature = 180, rate = 2, weight = 40},
 	["warm"] = {temperature = 300, rate = 5, weight = 50},
-	["hot"] = {temperature = 625, rate = 10, weight = 25}
+	["hot"] = {temperature = 625, rate = 10, weight = 25} --for bob mk2 turbine @ 615C
 }
 
 local WEIGHT_TABLE = {}
