@@ -16,17 +16,17 @@ data:extend(
 local function addFluid(color)
     local water = addDerivative("fluid", "lava", {
         name = "geothermal-water" ..  color,
-	      localised_name = {"geothermal-name.base", color ~= "" and {string.sub(color, 2)} or ""},
+	      localised_name = {"fluid-name.geothermal-water", color ~= "" and {"", " (", {"geothermal-name." .. string.sub(color, 2)}, " ", {"geothermal-name.variant"}, ")"} or ""},
         icons = {{icon = "__Geothermal__/graphics/icons/water.png", icon_size = 32}},
         order = "b[new-fluid]-b[nauvis]-a[geothermal]",
-        default_temperature = 180,
-        max_temperature = 180,
+        default_temperature = PATCH_TEMPERATURES["cold"].temperature,
+        max_temperature = PATCH_TEMPERATURES["hot"].temperature,
         heat_capacity = data.raw.fluid.water.heat_capacity,
         base_color = COLORS[color].base,
         flow_color = permuteColorScale(COLORS[color].base, 0.33, 0.33, 0.33),
     })
     if color ~= "" then
-      table.insert(water.icons, {icon = "__Geothermal__/graphics/icons/water-overlay.png", icon_size = 32, tint = COLORS[color].base, scale = 0.5, shift = {16, 16}})
+      table.insert(water.icons, {icon = "__Geothermal__/graphics/icons/water-overlay.png", icon_size = 32, tint = COLORS[color].base, scale = 0.75, shift = {8, 8}})
     end
     table.insert(fluids, water)
 end
@@ -45,7 +45,7 @@ for color,params in pairs(COLORS) do
 	  icon_size = 64,
     flags = {"placeable-neutral"},
     category = "geothermal",
-	localised_name = {"geothermal-name.base", tostring(temp.temperature), color ~= "" and {string.sub(color, 2)} or ""},
+	  localised_name = {"geothermal-name.base", tostring(temp.temperature), color ~= "" and {"", " (", {"geothermal-name." .. string.sub(color, 2)}, " ", {"geothermal-name.variant"}, ")"} or ""},
     order="a-b-a",
     infinite = true,
     highlight = true,
@@ -59,9 +59,10 @@ for color,params in pairs(COLORS) do
         {
           type = "fluid",
           name = "geothermal-water" .. color,
-          amount_min = temp.rate,
-          amount_max = temp.rate,
-          probability = 1
+          amount_min = temp.rate*10,
+          amount_max = temp.rate*10,
+          probability = 1,
+          temperature = temp.temperature,
         }
       }
     },
@@ -80,6 +81,7 @@ for color,params in pairs(COLORS) do
         frame_count = 1,
         x = 926*index,
         variation_count = 1,
+        layer = "ground-patch-higher2"
       }
     },
     stages_effect =
@@ -106,7 +108,7 @@ for color,params in pairs(COLORS) do
     map_color = {r=0.8, g=0.6, b=0.2},
     map_grid = false
   },
-  createBasicLight("geothermal-light" .. color, {brightness = 0.25, size = 18, color = params.light})
+    createBasicLight("geothermal-light-" .. label .. color, {brightness = 0.1+0.1*index, size = 6+3*index, color = params.light})
         })
     end
 end

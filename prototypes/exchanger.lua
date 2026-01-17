@@ -80,7 +80,7 @@ data:extend({
 			hidden = true,
 			energy_required = 0.2,
 			ingredients = {
-				{type = "fluid", name = "geothermal-water", amount = 100},
+				{type = "fluid", name = "geothermal-water", amount = 8}, --was 100
 			},
 			results = {
 				{type = "item", name = "stone", amount = 1},

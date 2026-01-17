@@ -1,158 +1,167 @@
-data:extend(
-{
-   {
-    type = "item",
+addDerivative("item", "pumpjack", {
     name = "geothermal-well",
     icon = "__Geothermal__/graphics/icons/geothermal-well.png",
-	icon_size = 32,
-    flags = {},
-    subgroup = "extraction-machine",
+    icon_size = 32,
     order = "b[steam-power]-b[geothermal-well]",
     place_result = "geothermal-well",
     stack_size = 10,
-  }
-}
-)
+})
 
 data:extend(
 {
    {
     type = "recipe",
     name = "geothermal-well",
-    enabled = "false",
-	normal = {
+    enabled = false,
 		energy_required = 90,
 		ingredients =
 		{
-			{"stone-brick", 90},
-			{"concrete", 180},
-			{"electric-engine-unit", 60},
-			{"steel-plate", 120},
-			{"copper-plate", 240},
+			{type = "item", name = "pipe", amount = 100},
+			{type = "item", name = "concrete", amount = 300},
+			{type = "item", name = "electric-engine-unit", amount = 80},
+			{type = "item", name = "steel-plate", amount = 200},
 		},
-		result = "geothermal-well",
-	},
-	expensive = {
-		energy_required = 180,
-		ingredients =
-		{
-			{"stone-brick", 300},
-			{"concrete", 270},
-			{"electric-engine-unit", 90},
-			{"steel-plate", 300},
-			{"copper-plate", 400},
-		},
-		result = "geothermal-well",
-	}
+		results = {{type = "item", name = "geothermal-well", amount = 1}},
   }
 }
 )
 
-data:extend(
-{
-  {
-    type = "mining-drill",
+local yield = settings.startup["geothermal-power-factor"].value
+addDerivative("mining-drill", "pumpjack", {
     name = "geothermal-well",
     icon = "__Geothermal__/graphics/icons/geothermal-well.png",
-	icon_size = 32,
-    flags = {"placeable-neutral", "player-creation"},
+    icon_size = 32,
+    order = "b[steam-power]-b[geothermal-well]",
     minable = {mining_time = 1, result = "geothermal-well"},
-    resource_categories = {"geothermal"},
     max_health = 800,
-    corpse = "big-remnants",
-    dying_explosion = "massive-explosion",
+    resource_categories = {"geothermal"},
     collision_box = {{ -1.4, -1.4}, {1.4, 1.4}},
     selection_box = {{ -1.5, -1.5}, {1.5, 1.5}},
     drawing_box = {{-1.6, -2.5}, {1.5, 1.6}},
+    fast_replaceable_group = "geothermal-well",
+    uses_force_mining_productivity_bonus = false,
+	  allowed_effects = {},
+    module_slots = 0,
+    quality_affects_mining_radius = false,
     energy_source =
     {
-      type = "electric",
-      -- will produce this much * energy pollution units per tick
-      emissions_per_minute = 16*Config.wellgen,
-      usage_priority = "secondary-input",
-	  drain = 40*Config.wellgen .. "kW",
+      emissions_per_minute = {pollution=5},
+	    drain = 100*yield .. "kW",
     },
-    input_fluid_box = Config.geothermalNeedsWater and
-    {
-      production_type = "input",
-	  filter = "water",
-      pipe_picture = assembler2pipepictures(),
-      pipe_covers = pipecoverspictures(),
-      base_area = 1,
-      height = 2,
-      base_level = -1,
-      pipe_connections =
-      {
-        { position = {-2, 0} },
-        { position = {2, 0} },
-        { position = {0, 2} },
-        { position = {0, -2} },
-      }
-    } or nil,
+    energy_usage = 250*yield .. "kW",
+    mining_speed = yield,
     output_fluid_box =
     {
-      production_type = "output",
-      base_area = 1,
-      base_level = 1,
-      pipe_covers = pipecoverspictures(),
       pipe_connections =
       {
         {
-          positions = { {1, -2}, {2, -1}, {-1, 2}, {-2, 1} }
-        }
-      },
+          direction = defines.direction.east,
+          position = {1, -1},
+          flow_direction = "output"
+        },
+        {
+          direction = defines.direction.east,
+          position = {1, 1},
+          flow_direction = "output"
+        },
+        {
+          direction = defines.direction.west,
+          position = {-1, -1},
+          flow_direction = "output"
+        },
+        {
+          direction = defines.direction.west,
+          position = {-1, 1},
+          flow_direction = "output"
+        },
+        {
+          direction = defines.direction.south,
+          position = {1, 1},
+          flow_direction = "output"
+        },
+        {
+          direction = defines.direction.north,
+          position = {1, -1},
+          flow_direction = "output"
+        },
+        {
+          direction = defines.direction.south,
+          position = {-1, 1},
+          flow_direction = "output"
+        },
+        {
+          direction = defines.direction.north,
+          position = {-1, -1},
+          flow_direction = "output"
+        },
+      }
     },
-	energy_usage = 240*Config.wellgen .. "kW",
-    mining_speed = 80*Config.wellgen, --was 30, then 50, but 30 can only support 4 steam engines with 4 wells running and max non-inf mining productivity research; 50 cannot even run 2 engines on 1 well without research
-    mining_power = 2,
-    resource_searching_radius = 0.49,
-    vector_to_place_result = {0, 0},
-    --[[module_specification =
-    {
-      module_slots = 2
-    },--]]
     radius_visualisation_picture =
     {
-      filename = "__Geothermal__/graphics/entity/geothermal/geothermal-well-radius-visualization.png",
+      filename = "__Geothermal__/graphics/entity/well/radius-visualization.png",
       width = 12,
       height = 12
     },
     base_picture =
     {
-      sheet =
-      {
-        filename = "__Geothermal__/graphics/entity/geothermal/geothermal-well-base.png",
-        priority = "extra-high",
-        width = 114,
-        height = 113,
-        shift = {0.1875, -0.03125}
+      sheets = {
+        {
+          filename = "__Geothermal__/graphics/entity/well/base.png",
+          width = 261,
+          height = 273,
+          shift = util.by_pixel(-2.25, -4.75),
+          scale = 0.5,
+          frames = 1,
+        },
+        {
+          filename = "__Geothermal__/graphics/entity/well/base-shadow.png",
+          width = 220,
+          height = 220,
+          scale = 0.5,
+          draw_as_shadow = true,
+          shift = util.by_pixel(6, 0.5),
+          frames = 1,
+        }
       }
     },
-    animations =
-    {
-      north =
+    graphics_set = {
+      animation =
       {
-        priority = "extra-high",
-        width = 116,
-        height = 110,
-        line_length = 10,
-        shift = {0.125, -0.71875},
-        filename = "__Geothermal__/graphics/entity/geothermal/geothermal-well-animation.png",
-        frame_count = 40,
-        animation_speed = 0.5
+        north =
+        {
+          layers = {
+            {
+              width = 116,
+              height = 110,
+              line_length = 10,
+              frame_count = 40,
+              shift = util.by_pixel(16, 4),
+              filename = "__Geothermal__/graphics/entity/well/well.png",
+              scale = 1.1,
+              animation_speed = 0.5,
+            },
+            {
+              width = 116,
+              height = 110,
+              line_length = 10,
+              frame_count = 40,
+              shift = util.by_pixel(16, 4),
+              filename = "__Geothermal__/graphics/entity/well/glow.png",
+              scale = 1.1,
+              animation_speed = 0.5,
+              blend_mode = "additive",
+              draw_as_glow = true,
+            }
+          }
+        }
       }
     },
-    vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
     working_sound =
     {
       sound = { filename = "__Geothermal__/sound/geothermal-well.ogg" },
       apparent_volume = 1.5,
     },
-    fast_replaceable_group = "geothermal-well",
-	allowed_effects = nil,
-  }
-}
-)
+})
 
 
 
