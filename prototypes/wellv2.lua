@@ -51,8 +51,8 @@ local well = addDerivative("heat-interface", "heat-interface",
       }
     },
     collision_mask = {layers={object=true, train=true, is_object=true, is_lower_object=true}}, -- collide just with object-layer and train-layer which don't collide with water, this allows us to build on 1 tile wide ground
-    collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
-    selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
+    collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
+    selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
 	tile_buildability_rules =
     {
       {area = {{-1.4, -1.4}, {1.4, 1.4}}, required_tiles = {layers={ground_tile=true}}, colliding_tiles = {layers={water_tile=true}}, remove_on_collision = true},
@@ -77,46 +77,30 @@ local well = addDerivative("heat-interface", "heat-interface",
       
       heat_lower_layer_picture = apply_heat_pipe_glow
       {
-        filename = "__Geothermal__/graphics/entity/wellv2/pipes-heated.png",
-        width = 320,
-        height = 320,
+        filename = "__Geothermal__/graphics/entity/wellv2/pipes-small-heated.png",
+        width = 192,
+        height = 192,
         scale = 0.5,
         shift = {0, 0},
       },
       connections =
       {
         {
-          position = {-1, -2},
+          position = {0, -1},
           direction = defines.direction.north
         },
         {
-          position = {1, -2},
-          direction = defines.direction.north
-        },
-        {
-          position = {2, -1},
+          position = {1, 0},
           direction = defines.direction.east
         },
         {
-          position = {2, 1},
-          direction = defines.direction.east
-        },
-        {
-          position = {1, 2},
+          position = {0, 1},
           direction = defines.direction.south
         },
         {
-          position = {-1, 2},
-          direction = defines.direction.south
-        },
-        {
-          position = {-2, 1},
+          position = {-1, 0},
           direction = defines.direction.west
         },
-        {
-          position = {-2, -1},
-          direction = defines.direction.west
-        }
       },
 
       heat_picture = "nil"
@@ -168,9 +152,9 @@ addDerivative("heat-interface", "geothermal-heat-well",
     {
       layers = {
       {
-        filename = "__Geothermal__/graphics/entity/wellv2/pipes.png",
-        width = 320,
-        height = 320,
+        filename = "__Geothermal__/graphics/entity/wellv2/pipes-small.png",
+        width = 192,
+        height = 192,
         scale = 0.5,
         shift = {0, 0},
       },
@@ -216,6 +200,28 @@ data:extend({
           apply_special_effect = false,
   }
 })
+
+local function createPatch(name)
+data:extend({
+  {
+    type = "sprite",
+    name = "heat-well-patch-" .. name,
+          filename = "__Geothermal__/graphics/entity/wellv2/patch-" .. name .. ".png",
+          width = 320,
+          height = 320,
+          scale = 0.5,
+          flags = {"no-crop"},
+          shift = util.by_pixel(0, 0),
+          draw_as_light = false,
+          draw_as_glow = false,
+          apply_special_effect = false,
+  }
+})
+end
+
+for patch,coord in pairs(WELL_PATCHES) do
+  createPatch(patch)
+end
 
 addDerivative("reactor", "nuclear-reactor",
   {
@@ -305,17 +311,17 @@ addDerivative("reactor", "nuclear-reactor",
     },
 
     lower_layer_picture =         {
-      filename = "__Geothermal__/graphics/entity/wellv2/pipes.png",
-      width = 320,
-      height = 320,
+      filename = "__Geothermal__/graphics/entity/wellv2/pipes-small.png",
+      width = 192,
+      height = 192,
       scale = 0.5,
       shift = {0, 0},
         },
     heat_lower_layer_picture = apply_heat_pipe_glow
     {
-      filename = "__Geothermal__/graphics/entity/wellv2/pipes-heated.png",
-      width = 320,
-      height = 320,
+      filename = "__Geothermal__/graphics/entity/wellv2/pipes-small-heated.png",
+      width = 192,
+      height = 192,
       scale = 0.5,
       shift = {0, 0},
     },

@@ -13,6 +13,17 @@ PATCH_TEMPERATURES = {
 	["hot"] = {temperature = 625, rate = 10, weight = 25} --for bob mk2 turbine @ 615C
 }
 
+WELL_PATCHES = {
+	["wnw"] = {x = -2, y = -1},
+	["wsw"] = {x = -2, y = 1},
+	["ene"] = {x = 2, y = -1},
+	["ese"] = {x = 2, y = -1},
+	["ssw"] = {x = -1, y = 2},
+	["sse"] = {x = 1, y = 2},
+	["nnw"] = {x = -1, y = -2},
+	["nne"] = {x = 1, y = -2},
+}
+
 TEMPERATURE_INDICES = {}
 
 local WEIGHT_TABLE = {}

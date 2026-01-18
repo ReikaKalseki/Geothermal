@@ -49,6 +49,11 @@ local function onEntityRemoved(event)
 				if entry and entry.animation and entry.animation.valid then
 					entry.animation.destroy()
 				end
+				if entry and entry.patches then
+					for _,r in pairs(entry.patches) do
+						if r.valid then r.destroy() end
+					end
+				end
 				storage.geothermal.wells[event.entity.unit_number] = nil
 			end
 		end
@@ -91,8 +96,14 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		reactor.rotatable = false
 
 		local anim = rendering.draw_animation{animation="heat-well-animation", render_layer="object", animation_speed=0, target=well, surface=well.surface, visible=true, only_in_alt_mode=false}
+		local patches = {}
 
-		addGlobalKV({"wells", well.unit_number}, {entity=well, graphics=reactor, animation = anim})
+		for patch,coord in pairs(WELL_PATCHES) do
+			local r = rendering.draw_sprite{sprite="heat-well-patch-" .. patch, render_layer="ground-patch", target=well, surface=well.surface, visible=false, only_in_alt_mode=false}
+			patches[patch] = r
+		end
+
+		addGlobalKV({"wells", well.unit_number}, {entity=well, graphics=reactor, animation = anim, patches = patches})
 	elseif effect_id == "on-create-geothermal-exchanger" then
 		local pos = entity.position
 		if entity.direction == defines.direction.north then
@@ -125,12 +136,18 @@ script.on_nth_tick(10, function(data)
 					local surface = entry.entity.surface
 					local x = entry.entity.position.x
 					local y = entry.entity.position.y
-					local tileN = isTileType(surface, x, y-2, {"lava", "geothermal", "molten"})
-					local tileE = isTileType(surface, x+2, y, {"lava", "geothermal", "molten"})
-					local tileS = isTileType(surface, x, y+2, {"lava", "geothermal", "molten"})
-					local tileW = isTileType(surface, x-2, y, {"lava", "geothermal", "molten"})
+					local lava = false
+					if entry.patches then
+						for patch,coord in pairs(WELL_PATCHES) do
+							local r = entry.patches[patch]
+							if r and r.valid then
+								r.visible = isTileType(surface, x+coord.x, y+coord.y, {"lava", "geothermal", "molten"})
+								if r.visible then lava = true end
+							end
+						end
+					end
 					local tiername = nil
-					if tileN or tileE or tileS or tileW then
+					if lava then
 						tiername = "hot" --lava is hot
 					else
 						local tier = -1
