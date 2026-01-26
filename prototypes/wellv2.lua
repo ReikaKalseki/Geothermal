@@ -23,11 +23,11 @@ data:extend({
 		energy_required = 30,
 		enabled = false,
 		ingredients = {
-			{type = "item", name = "heat-pipe", amount = 100},
-			{type = "item", name = "refined-concrete", amount = 200},
-			{type = "item", name = "tungsten-plate", amount = 100},
-			{type = "item", name = "electric-engine-unit", amount = 20},
-			{type = "item", name = "processing-unit", amount = 10},
+			{type = "item", name = "heat-pipe", amount = 500},
+			{type = "item", name = "refined-concrete", amount = 1000},
+			{type = "item", name = "tungsten-plate", amount = 400},
+			{type = "item", name = "electric-engine-unit", amount = 200},
+			{type = "item", name = "processing-unit", amount = 300},
 		},
 		results = {{type="item", name="geothermal-heat-well", amount=1}}
 	  },
