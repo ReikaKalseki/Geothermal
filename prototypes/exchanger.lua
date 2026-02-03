@@ -92,10 +92,11 @@ data:extend({
 		energy_required = 30,
 		enabled = false,
 		ingredients = {
-			{type = "item", name = "heat-exchanger", amount = 2},
+			{type = "item", name = "heat-exchanger", amount = 1},
 			{type = "item", name = "concrete", amount = 200},
-			{type = "item", name = "pump", amount = 10},
-			{type = "item", name = "advanced-circuit", amount = 50},
+			{type = "item", name = "pump", amount = 4},
+			{type = "item", name = "heat-pipe", amount = 50},
+			{type = "item", name = "advanced-circuit", amount = 20},
 		},
 		results = {{type="item", name="geothermal-exchanger-basic", amount=1}}
 	  },
@@ -108,7 +109,7 @@ data:extend({
 			{type = "item", name = "geothermal-exchanger-basic", amount = 1},
 			{type = "item", name = "refined-concrete", amount = 100},
 			{type = "item", name = "heat-pipe", amount = 200},
-			{type = "item", name = "processing-unit", amount = 50},
+			{type = "item", name = "processing-unit", amount = 20},
 		},
 		results = {{type="item", name="geothermal-exchanger-hot", amount=1}}
 	  },
