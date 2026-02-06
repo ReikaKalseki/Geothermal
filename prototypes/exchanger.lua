@@ -65,7 +65,7 @@ data:extend({
 			hidden = true,
 			energy_required = 0.1,
 			ingredients = {
-				{type = "fluid", name = "lava", amount = 40},
+				{type = "fluid", name = "lava", amount = 60}, --was 40
 			},
 			results = {
 				{type = "item", name = "stone", amount = 2},
@@ -80,7 +80,7 @@ data:extend({
 			hidden = true,
 			energy_required = 0.2,
 			ingredients = {
-				{type = "fluid", name = "geothermal-water", amount = 8}, --was 100
+				{type = "fluid", name = "geothermal-water", amount = 2}, --was 100 then 8 then 4
 			},
 			results = {
 				{type = "item", name = "stone", amount = 1},
@@ -138,7 +138,7 @@ data:extend({
 		drop_sound = item_sounds.steam_inventory_move,
 		place_result = "geothermal-exchanger-" .. name,
 		stack_size = 10,
-		weight = 250*kg
+		weight = 200*kg
 	  }
 })
 
@@ -148,7 +148,7 @@ data:extend({
 		icon = "__Geothermal__/graphics/icons/heat-exchanger.png",
 		minable = {mining_time = 0.5, result = "geothermal-exchanger-" .. name},
 		max_health = 500,
-		energy_consumption = "25MW",
+		energy_consumption = "15MW",
 		created_effect = {
 			type = "direct",
 			action_delivery = {

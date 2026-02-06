@@ -15,7 +15,7 @@ data:extend({
 		drop_sound = item_sounds.steam_inventory_move,
 		place_result = "geothermal-heat-well-preview",
 		stack_size = 5,
-		weight = 500*kg
+		weight = 1000*kg
 	  },
 	  {
 		type = "recipe",

@@ -1,30 +1,46 @@
 require "constants"
+require "__DragonIndustries__.di-utils"
 require "__DragonIndustries__.mathhelper"
 require "__DragonIndustries__.tiles"
 require "__DragonIndustries__.arrays"
 require "__DragonIndustries__.world"
 
---TODO move this to DI
-local function addGlobalKV(k, v)
-	if not storage.geothermal then storage.geothermal = {} end
-	local at = storage.geothermal
-	local prev = nil
-	if type(k) == "table" then
-		for i,step in ipairs(k) do
-			prev = at
-			at = prev[step]
-			if not at then
-				at = {}
-				prev[step] = at
-			end
-			if i == #k then
-				prev[step] = v
-			end
-		end
-	else
-		storage.geothermal[k] = v
-	end
-end
+---@class (exact) GeoSpawnRules
+---@field planet string
+---@field tiles GeoTileRuleset
+---@field size number
+---@field frequency number
+---@field minDist number
+---@field distanceFactor number
+---@field rateClamp number
+---@field version int
+
+---@class (exact) GeoTileRuleset
+---@field set {string:GeoTileRule}
+---@field populated boolean
+
+---@class (exact) GeoTileRule
+---@field rate number
+---@field radius number
+---@field count_min? int
+---@field count_max? int
+
+---@class (exact) LocalSpawnData
+---@field multiplier number
+---@field count_min int
+---@field count_max int
+---@field radius number
+
+---@class (exact) ExchangerEntry
+---@field entity LuaEntity
+---@field input LuaEntity
+---@field hot boolean
+
+---@class (exact) HeatWellEntry
+---@field entity LuaEntity
+---@field graphics LuaEntity
+---@field animation LuaRenderObject
+---@field patches {string: LuaRenderObject}
 
 local function onEntityRotated(event)
 	
@@ -35,8 +51,8 @@ local function onEntityRemoved(event)
 		if string.find(event.entity.name, "geothermal-exchanger", 1, true) then
 			if storage.geothermal and storage.geothermal.exchangers then
 				local entry = storage.geothermal.exchangers[event.entity.unit_number]
-				if entry and entry.entity.valid then
-					entry.input.destroy()
+				if entry and entry.logic and entry.logic.valid then
+					entry.logic.destroy()
 					storage.geothermal.exchangers[event.entity.unit_number] = nil
 				end
 			end
@@ -123,7 +139,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		assembler.destructible = false
 		assembler.minable_flag = false
 		assembler.rotatable = false
-		addGlobalKV({"exchangers", entity.unit_number}, {entity=entity, input=assembler, hot=string.find(entity.name, "hot", 1, true)})
+		addGlobalKV({"exchangers", entity.unit_number}, {entity=entity, input=assembler, hot=string.find(entity.name, "hot", 1, true) ~= nil})
 	end
 end)
 
@@ -222,91 +238,152 @@ end)
 
 local SET_VERSION = 3
 
-local function getPatchSize(tile)
+---@param set {string:GeoTileRule}
+---@param name string
+local function computePatchSize(set, name)
+	local e = set[name]
 	local low = 2
 	local high = 6
-	if string.find(tile, "volcanic", 1, true) then
+	if string.find(name, "volcanic", 1, true) then
 		high = 2--32
 		low = high
 	end
-	if string.find(tile, "snow", 1, true) then
+	if string.find(name, "snow", 1, true) then
 		low = 5
 		high = 10
 	end
-	if string.find(tile, "desert", 1, true) then
+	if string.find(name, "desert", 1, true) then
 		low = 4
 		high = 6
 	end
-	return low, high
+	e.count_min = low
+	e.count_max = high
 end
 
-local function calculateSpawnSet(glbl)
-	local lavatiles = prototypes.tile["volcanic-orange-heat-1"]
-	local snowtiles = prototypes.tile["frozen-snow-0"]
-	local set = {}
-	local setting = settings.startup["geothermal-spawn-rules"].value;
-	if setting == "everywhere" or getTableSize(set) == 0 then
-		for name,tile in pairs(prototypes.tile) do
-			set[name] = {rate = 0.012, radius = 6} --0.0015 is too rare to appear enough; as was 0.006 and 0.009
+---@param name string
+---@param setting string
+---@param rules GeoSpawnRules
+local function processTileRule(name, setting, rules)
+	if rules.planet == "nauvis" then
+		if string.find(name, "volcanic", 1, true) then
+			local heat = tonumber(string.sub(name, -1)) -- 1-4, 4 is hotter & brighter
+			if not heat then
+				if string.find(name, "hot", 1, true) then
+					heat = 4
+				elseif string.find(name, "warm", 1, true) then
+					heat = 2
+				elseif string.find(name, "cool", 1, true) then
+					heat = 1
+				else
+					heat = 0
+				end
+			end
+			if not heat then error("Error getting tile rules on " .. rules.planet .. ": Was not able to determine heat from volcanic tile " .. name) end
+			if heat > 0 then
+				local f2 = 9*0.36*((heat/4)^2)--0.4*((heat/4)^2)--0.25*heat/4
+				rules.tiles.set[name] = {rate = f2, radius = 4}--16}
+				computePatchSize(rules.tiles.set, name)
+			end
 		end
-	else
-		for name,tile in pairs(prototypes.tile) do
-			if string.find(name, "volcanic", 1, true) then
-				local heat = tonumber(string.sub(name, -1)) -- 1-4, 4 is hotter & brighter
-				--game.print(name .. " > " .. heat)
-				local f2 = 36*0.36*((heat/4)^2)--0.4*((heat/4)^2)--0.25*heat/4
-				set[name] = {rate = f2, radius = 4}--16}
+		if setting == "volcanic-and-snow" or setting == "volcanic-snow-and-red-desert" then
+			if string.find(name, "frozen-snow", 1, true) then
+				rules.tiles.set[name] = {rate = 0.055, radius = 9} --was 0.03, then 0.045
+				computePatchSize(rules.tiles.set, name)
 			end
-			if setting == "volcanic-and-snow" or setting == "volcanic-snow-and-red-desert" then
-				if string.find(name, "frozen-snow", 1, true) then
-					set[name] = {rate = 0.055, radius = 9} --was 0.03, then 0.045
-				end
+		end
+		if setting == "volcanic-snow-and-red-desert" then
+			if string.find(name, "red-desert", 1, true) then
+				rules.tiles.set[name] = {rate = 0.04, radius = 8} --was 0.006, then 0.02
+				computePatchSize(rules.tiles.set, name)
 			end
-			if setting == "volcanic-snow-and-red-desert" then
-				if string.find(name, "red-desert", 1, true) then
-					set[name] = {rate = 0.04, radius = 8} --was 0.006, then 0.02
-				end
-			end
+		end
+	elseif rules.planet == "gleba" then
+		if string.find(name, "highland", 1, true) then
+			rules.tiles.set[name] = {rate = 0.02, radius = 20}
+			computePatchSize(rules.tiles.set, name)
+		elseif setting == "highlands-and-midlands" and string.find(name, "midland", 1, true) then
+			rules.tiles.set[name] = {rate = 0.02, radius = 20}
+			computePatchSize(rules.tiles.set, name)
+		end
+	elseif rules.planet == "maraxsis" then
+		if string.find(name, "dirt", 1, true) then
+			rules.tiles.set[name] = {rate = 0.2, radius = 4}
+			computePatchSize(rules.tiles.set, name)
+		elseif setting == "deep-only" and string.find(name, "underwater", 1, true) then
+			rules.tiles.set[name] = {rate = 0.08, radius = 6}
+			computePatchSize(rules.tiles.set, name)
 		end
 	end
-	for k,v in pairs(set) do
-		if type(v) == "number" then
-			local low,high = getPatchSize(k)
-			set[k] = {rate = v, count_min = low, count_max = high}
-			--game.print(k)
-		elseif type(v) == "table" and not v.count_min then
-			local low,high = getPatchSize(k)
-			v.count_min = low
-			v.count_max = high
+end
+
+---@param rules GeoSpawnRules
+local function calculateSpawnSet(rules)
+	rules.tiles = {populated=false, set = {}}
+	local setting = settings.startup["geothermal-spawn-rules-" .. rules.planet].value
+	if setting == "nowhere" then rules.tiles.populated = true return end
+	if setting ~= "everywhere" then
+		for name,tile in pairs(prototypes.tile) do
+			processTileRule(name, setting, rules)
 		end
+		rules.tiles.populated = getTableSize(rules.tiles.set) > 0
+	end
+	if not rules.tiles.populated then
+		for name,tile in pairs(prototypes.tile) do
+			rules.tiles.set[name] = {rate = 0.012, radius = 6} --0.0015 is too rare to appear enough; as was 0.006 and 0.009
+			computePatchSize(rules.tiles.set, name)
+		end
+		rules.tiles.populated = true
 	end
 	--game.print(serpent.block(set))
-	set.version = SET_VERSION
-	return set
 end
 
-local function getSpawnSet()
-	local geo = storage.geo
+---@param planet string
+---@return GeoSpawnRules
+local function calculateSpawnRules(planet)
+	fmtlog("Generating spawn rules for planet '%s'...", planet)
+	local size = settings.startup["geothermal-size-" .. planet].value
+	local freq = settings.startup["geothermal-spawn-frequency-" .. planet].value
+	local minDist = settings.startup["geothermal-min-distance-" .. planet].value
+	local distFac = settings.startup["geothermal-distance-scalar-" .. planet].value
+	local rateClamp = settings.startup["geothermal-rate-clamp-" .. planet].value
+	local ret = {planet=planet, size=size, frequency=freq, minDist=minDist, distanceFactor=distFac, rateClamp=rateClamp, version=SET_VERSION}
+	calculateSpawnSet(ret)
+	fmtlog("Computed spawn rules for planet '%s':\n%s", planet, ret)
+	return ret
+end
+
+---@param planet string
+---@return GeoSpawnRules
+local function getSpawnRules(planet)
+	local geo = storage.geothermal
+	--fmtlog("Geo cache: %s", geo)
 	if not geo then
 		geo = {}
-		storage.geo = geo
+		storage.geothermal = geo
 	end
-	if geo.set and (geo.set.version == nil or geo.set.version < SET_VERSION) then
-		geo.set = nil
+	if geo.spawnRules and geo.spawnRules[planet] and (geo.spawnRules[planet].version == nil or geo.spawnRules[planet].version < SET_VERSION) then
+		--fmtlog("Nulled planet %s geo spawn rules V%s", planet, geo.spawnRules[planet].version)
+		geo.spawnRules[planet] = nil
 	end
-	if not geo.set then
-		geo.set = calculateSpawnSet(geo)
+	if not geo.spawnRules then geo.spawnRules = {} end
+	if not geo.spawnRules[planet] and settings.startup["geothermal-size-" .. planet] then --skip compute for planets without configurations
+		addGlobalKV({"spawnRules", planet}, calculateSpawnRules(planet))
 	end
-	return geo.set
+	--fmtlog("New Geo cache: %s", geo)
+	return geo.spawnRules[planet]
 end
 
-local function isNonZeroTile(surface, x, y)
-	local set = getSpawnSet()
+---@param surface LuaSurface
+---@param x int
+---@param y int
+---@param rules GeoSpawnRules
+---@return boolean
+local function isNonZeroTile(surface, x, y, rules)
 	for i = -1,1 do
 		for k = -1,1 do
 			local tile = surface.get_tile(x+i, y+k)
 			--game.print(tile.name .. " > " .. serpent.block(set[tile.name]))
-			if set[tile.name] and set[tile.name].rate > 0 then
+			if rules.tiles.set[tile.name] and rules.tiles.set[tile.name].rate > 0 then
 				return true
 			end
 		end
@@ -314,10 +391,19 @@ local function isNonZeroTile(surface, x, y)
 	return false
 end
 
-function canPlaceAt(surface, x, y)
-	return surface.can_place_entity{name = "geothermal-patch-hot", position = {x, y}} and isNonZeroTile(surface, x, y)
+---@param surface LuaSurface
+---@param x int
+---@param y int
+---@param rules GeoSpawnRules
+---@return boolean
+function canPlaceAt(surface, x, y, rules)
+	return surface.can_place_entity{name = "geothermal-patch-hot", position = {x, y}} and isNonZeroTile(surface, x, y, rules)
 end
 
+---@param surface LuaSurface
+---@param x int
+---@param y int
+---@return string?
 local function getTileColor(surface, x, y)
 	local tile = surface.get_tile(x, y)
 	local clr = nil
@@ -328,6 +414,10 @@ local function getTileColor(surface, x, y)
 	return clr
 end
 
+---@param surface LuaSurface
+---@param x int
+---@param y int
+---@return string?
 local function getPrevailingColor(surface, x, y)
 	local clrs = {}
 	--game.print(clr)
@@ -342,8 +432,14 @@ local function getPrevailingColor(surface, x, y)
 	return getHighestTableKey(clrs)
 end
 
-function createResource(surface, dx, dy, rand, color)
-	if canPlaceAt(surface, dx, dy) then
+---@param surface LuaSurface
+---@param dx int
+---@param dy int
+---@params rand LuaRandomGenerator
+---@params color string
+---@param rules GeoSpawnRules
+function createResource(surface, dx, dy, rand, color, rules)
+	if canPlaceAt(surface, dx, dy, rules) then
 		local clrAt = getTileColor(surface, dx, dy)
 		if clrAt or not color then color = getPrevailingColor(surface, dx, dy) end
 		local clr = (color and color ~= "red" and color ~= "orange") and color or ""
@@ -358,80 +454,63 @@ function createResource(surface, dx, dy, rand, color)
 	end
 end
 
-function cantorCombine(a, b)
-	--a = (a+1024)%16384
-	--b = b%16384
-	local k1 = a*2
-	local k2 = b*2
-	if a < 0 then
-		k1 = a*-2-1
-	end
-	if b < 0 then
-		k2 = b*-2-1
-	end
-	return 0.5*(k1 + k2)*(k1 + k2 + 1) + k2
-end
-
----@return integer
-function createSeed(surface, x, y) --Used by Minecraft MapGen
-	local seed = surface.map_gen_settings.seed
-	--if Config.seedMixin ~= 0 then
-	--	seed = bit32.band(cantorCombine(seed, Config.seedMixin), 2147483647)
-	--end
-	return bit32.band(cantorCombine(seed, cantorCombine(x, y)), 2147483647)
-end
-
-local function getSpawnData(surface, x, y)
-	local set = getSpawnSet()
-	local ret = 0
-	local sizes = {0, 0}
-	local radius = 0
-	c = 0
+---@param surface any
+---@param x int
+---@param y int
+---@param rules GeoSpawnRules
+---@return LocalSpawnData
+local function getSpawnData(surface, x, y, rules)
+	local ret = {multiplier = 0, count_min = 0, count_max = 0, radius = 0}
+	local set = rules.tiles.set
+	local c = 0
 	for i = -1,1 do
 		for k = -1,1 do
 			local tile = surface.get_tile(x+i, y+k)
-			--game.print(tile.name .. " > " .. serpent.block(set[tile.name]))
 			if tile.valid and set[tile.name] then
-				ret = ret+set[tile.name].rate
-				sizes[1] = math.max(sizes[1], set[tile.name].count_min)
-				sizes[2] = math.max(sizes[2], set[tile.name].count_max)
-				radius = math.max(radius, set[tile.name].radius)
+				ret.multiplier = ret.multiplier+set[tile.name].rate
+				ret.count_min = math.max(ret.count_min, set[tile.name].count_min)
+				ret.count_max = math.max(ret.count_max, set[tile.name].count_max)
+				ret.radius = math.max(ret.radius, set[tile.name].radius)
 				c = c+1
-				--if ret > 0 then game.print(tile.name) end
-				--surface.set_tiles({{name = "water", position = {x+i, y+k}}})
 			end
 		end
 	end
-	return (c > 0 and ret/c or 0), sizes, radius
+	ret.multiplier = (c > 0 and ret.multiplier/c or 0)
+	return ret
 end
 
-local size = settings.startup["geothermal-size"].value
-local freq = settings.startup["geothermal-frequency"].value
-local minDist = settings.startup["geothermal-min-distance"].value
-local distFac = settings.startup["geothermal-distance-scalar"].value
-local rateClamp = settings.startup["geothermal-rate-clamp"].value
-
-local function trySpawnPatchAt(rand, surface, x, y, df, counts, radius)
+---@params rand LuaRandomGenerator
+---@param surface LuaSurface
+---@param x int
+---@param y int
+---@params df number
+---@params localSpawn LocalSpawnData
+---@param rules GeoSpawnRules
+local function trySpawnPatchAt(rand, surface, x, y, df, localSpawn, rules)
 	--game.print("Genning Chunk at " .. x .. ", " .. y)
 	x = x-6+rand(0, 12)
 	y = y-6+rand(0, 12)
-	local count = rand(counts[1], counts[2])
-	count = math.max(1, math.ceil(df*1.5*count*size))
+	local count = rand(localSpawn.count_min, localSpawn.count_max)
+	count = math.max(1, math.ceil(df*1.5*count*rules.size))
 	local color = getRandomColor(rand)
 	--game.print("Chunk at " .. x .. ", " .. y .. " attempting " .. count)
 	for i = 1, count do
-		local r = math.floor(radius*size+0.5)
+		local r = math.floor(localSpawn.radius*rules.size+0.5)
 		local dx = x-r+rand(0, r*2)
 		local dy = y-r+rand(0, r*2)
-		createResource(surface, dx, dy, rand, color)
+		createResource(surface, dx, dy, rand, color, rules)
 	end
 end
 
+---@param surface LuaSurface
+---@param area BoundingBox
 local function controlChunk(surface, area)
 	local x = (area.left_top.x+area.right_bottom.x)/2
 	local y = (area.left_top.y+area.right_bottom.y)/2
+	local rules = getSpawnRules(surface.name)
+	if not rules then return end --is nil if no configurations
 	local dd = x*x+y*y
-	local mind = minDist
+	local mind = rules.minDist
 	if dd < mind*mind then
 		return
 	end
@@ -443,24 +522,22 @@ local function controlChunk(surface, area)
 	local dx = area.left_top.x+rand(0, 32)
 	local dy = area.left_top.y+rand(0, 32)
 			if df >= 1 or rand(0, 100)/100 < df then
-				local f0,counts,radius = getSpawnData(surface, dx, dy)
+				local localSpawn = getSpawnData(surface, dx, dy, rules)
 				--if f0 > 0 then game.print(f0) end
-				local f = f0*math.min(rateClamp, 1+(math.sqrt(dd)/(1000*distFac)))*256
-				f = f*freq*PATCH_RATE_FACTOR*0.003 -- *0.003 because of 0.17 algo change
+				local f = localSpawn.multiplier*math.min(rules.rateClamp, 1+(math.sqrt(dd)/(1000*rules.distanceFactor)))*256
+				f = f*rules.frequency*PATCH_RATE_FACTOR*0.003 -- *0.003 because of 0.17 algo change
 				local f1 = rand(0, 2147483647)/2147483647
 				local shouldGen = f1 < f
 				--game.print("Chunk at " .. x .. ", " .. y .. " with chance " .. f .. " / " .. f1)
 				if shouldGen then
 					--game.print("Genning patch at " .. dx .. " , " .. dy)
-					trySpawnPatchAt(rand, surface, dx, dy, df, counts, radius)
+					trySpawnPatchAt(rand, surface, dx, dy, df, localSpawn, rules)
 				end
 			end
 end
 
 script.on_event(defines.events.on_chunk_generated, function(event)
-	if event.surface.name == "nauvis" or event.surface.name == "gleba" or event.surface.name == "tenebris" or event.surface.name == "tenebris-prime" or event.surface.name == "maraxsis" then
-		controlChunk(event.surface, event.area)
-	end
+	controlChunk(event.surface, event.area)
 end)
 --[[
 script.on_event(defines.events.on_tick, function(event)	

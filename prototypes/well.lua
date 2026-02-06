@@ -5,6 +5,7 @@ addDerivative("item", "pumpjack", {
     order = "b[steam-power]-b[geothermal-well]",
     place_result = "geothermal-well",
     stack_size = 10,
+		weight = 500*kg
 })
 
 data:extend(
@@ -49,7 +50,7 @@ addDerivative("mining-drill", "pumpjack", {
 	    drain = 100*yield .. "kW",
     },
     energy_usage = 250*yield .. "kW",
-    mining_speed = yield,
+    mining_speed = 1.5*yield,
     output_fluid_box =
     {
       pipe_connections =

@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.001.001
+Date: Feb 19 2026
+	- Update to 2.0 and Space Age
+	- Redesigned and rewritten, keeping core concepts but no specific features
+	- Removed thermal wagon, possibly permanently
+---------------------------------------------------------------------------------------------------
 Version: 1.152.1
 Date: Nov 15 2022
 	- Major code cleanup, fixing tile type detection and responsiveness

@@ -47,16 +47,21 @@ COLORS = {
 	COLORS["-purple"] = {product = "uranium-ore", productAmount=0.06, overlay = "purple", base = {r=1, g=0, b=1}, light = {r=1, g=0.5, b=1}, weight = 20}
 --end
 
+---@type {string: {string:any}}
 local COLOR_WEIGHT_TABLE = {}
 
 for clr,params in pairs(COLORS) do
 	COLOR_WEIGHT_TABLE[clr] = {params.weight, clr}
 end
 
+---@param randFunc LuaRandomGenerator
+---@return string
 function getRandomColor(randFunc)
 	return getWeightedRandom(COLOR_WEIGHT_TABLE, randFunc)
 end
 
+---@param quality LuaQualityPrototype
+---@return number
 function getHeatWellEfficiency(quality)
 	return (1+HEAT_WELL_QUALITY_FACTOR*quality.level)
 end

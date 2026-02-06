@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.20.001
+Date: Feb 19 2026
+  Misc Changes:
+    - Redesigned and rewritten, keeping core concepts but no specific features
+    - Update to 2.0 and Space Age
+  Removed Features:
+    - Removed thermal wagon, possibly permanently
+---------------------------------------------------------------------------------------------------
 Version: 1.101.152
 Date: Nov 15 2022
   Misc Changes:
