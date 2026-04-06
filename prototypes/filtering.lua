@@ -1,5 +1,8 @@
 require "constants"
 
+require "__DragonIndustries__.di-utils"
+require "__DragonIndustries__.sprites"
+
 local amount = 240--120--250
 
 local function createGeothermalFiltering(color, params)
