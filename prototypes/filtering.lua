@@ -68,6 +68,7 @@ local carb = addDerivative("recipe", "sulfur", {
 		results = {
 			{type="item", name="carbon", amount=5},
 		},
+		icons = createABIcon(data.raw.fluid["crude-oil"], data.raw.item.carbon),
 })
 if item == "sand" then table.insert(carb.results, {type="item", name="sand", amount=1, probability = 0.04}) end
 
